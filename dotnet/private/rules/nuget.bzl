@@ -88,7 +88,9 @@ dotnet_nuget_new = repository_rule(
 _FUNC = """
 {}(
     name = "{}",
-    src = "{}",
+    src = [
+        {}
+    ],
     deps = [
         {}
     ],
@@ -124,7 +126,7 @@ def _get_importlib_withframework(func, name, lib, deps, files, version):
             for f in files[framework]:
                 datastr += "    \"{}\",\n".format(f)
 
-        result += _FUNC.format(func, "{}_{}".format(framework, name), lib[framework], depsstr, datastr, version)
+        result += _FUNC.format(func, "{}_{}".format(framework, name), datastr, depsstr, datastr, version)
     return result
 
 _TEMPLATE2 = """

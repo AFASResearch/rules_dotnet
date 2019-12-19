@@ -17,8 +17,8 @@ load(
     "ResolveVersions",
 )
 
-def _map_dep(deps):
-    return deps[DotnetLibrary].result.path
+def _map_dep(f):
+    return f.path
 
 def _map_resource(d):
     return d.result.path + "," + d.identifier
@@ -58,7 +58,14 @@ def _make_runner_arglist(dotnet, deps, resources, output, pdb, executable, defin
     #  args.add(format="/lib:%s", value=libdirs)
 
     if deps and len(deps) > 0:
-        args.add_all(deps, format_each = "/reference:%s", map_each = _map_dep)
+        dep_files = []
+        for d in deps:
+            r = d[DotnetLibrary].result
+            if type(r) == "File":
+                dep_files += [r]
+            else:
+                dep_files += r
+        args.add_all(dep_files, format_each = "/reference:%s", map_each = _map_dep)
 
     args.add(dotnet.stdlib, format = "/reference:%s")
 
@@ -142,9 +149,23 @@ def emit_assembly_core(
 
     dotnet.actions.write(output = paramfile, content = runner_args)
 
-    deps_files = [d[DotnetLibrary].result for d in transitive.to_list()]
+    deps_files = []
+    for fs in [d[DotnetLibrary].result for d in transitive.to_list()]:
+        if type(fs) == "File":
+            deps_files += [fs]
+        else:
+            deps_files += fs
+            
+    results = []
+    for r in resources:
+        result2 = r[DotnetResource].result
+        if type(result) == "File":
+            results += [result2]
+        else:
+            results += result2
+
     dotnet.actions.run(
-        inputs = attr_srcs + [paramfile] + deps_files + [dotnet.stdlib] + [r[DotnetResource].result for r in resources],
+        inputs = attr_srcs + [paramfile] + deps_files + [dotnet.stdlib] + results,
         outputs = [result] + ([pdb] if pdb else []),
         executable = dotnet.runner,
         arguments = [dotnet.mcs.path, "/noconfig", "@" + paramfile.path],
