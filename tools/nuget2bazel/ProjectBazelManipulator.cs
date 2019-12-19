@@ -20,7 +20,7 @@ using NuGet.Versioning;
 
 namespace nuget2bazel
 {
-    public class ProjectBazelManipulator : FolderNuGetProject
+    public class ProjectBazelManipulator : NuGetProject
     {
         private readonly string _mainFile;
         private readonly bool _skipSha256;
@@ -28,11 +28,11 @@ namespace nuget2bazel
 
         public string JsonConfigPath { get; set; }
         public string WorkspacePath { get; set; }
-        public IEnumerable<NuGetProjectAction> NuGetProjectActions { get; set; }
+        //public IEnumerable<NuGetProjectAction> NuGetProjectActions { get; set; }
 
         public ProjectBazelConfig ProjectConfig { get; private set; }
 
-        public ProjectBazelManipulator(ProjectBazelConfig prjConfig, string mainFile, bool skipSha256, string variable) : base(Path.Combine(prjConfig.RootPath, "packages"))
+        public ProjectBazelManipulator(ProjectBazelConfig prjConfig, string mainFile, bool skipSha256, string variable)
         {
             ProjectConfig = prjConfig;
             _mainFile = mainFile;
@@ -40,9 +40,12 @@ namespace nuget2bazel
             _variable = variable;
             JsonConfigPath = Path.Combine(ProjectConfig.RootPath, ProjectConfig.Nuget2BazelConfigName);
             WorkspacePath = Path.Combine(ProjectConfig.RootPath, ProjectConfig.BazelFileName);
+
+            InternalMetadata.Add(NuGetProjectMetadataKeys.Name, "Root");
+            InternalMetadata.Add(NuGetProjectMetadataKeys.TargetFramework, NuGetFramework.Parse("netcoreapp2.1"));
         }
 
-        private async Task<Nuget2BazelConfig> GetJsonAsync()
+        public async Task<Nuget2BazelConfig> GetJsonAsync()
         {
             if (!File.Exists(JsonConfigPath))
                 using (var sw = new StreamWriter(JsonConfigPath))
@@ -72,7 +75,7 @@ namespace nuget2bazel
             }
         }
 
-        private async Task SaveJsonAsync(Nuget2BazelConfig json)
+        public async Task SaveJsonAsync(Nuget2BazelConfig json)
         {
             using (var writer = new StreamWriter(JsonConfigPath, false, Encoding.UTF8))
             {
@@ -141,25 +144,19 @@ namespace nuget2bazel
             json.dependencies.Add(packageIdentity.Id, packageIdentity.Version.ToString());
             await SaveJsonAsync(json);
 
-            var packageReader = downloadResourceResult.PackageReader
+            PackageReaderBase packageReader = downloadResourceResult.PackageReader
                                 ?? new PackageArchiveReader(downloadResourceResult.PackageStream, leaveStreamOpen: true);
             IAsyncPackageContentReader packageContentReader = packageReader;
-            IAsyncPackageCoreReader packageCoreReader = packageReader;
 
-            var libItemGroups = await packageContentReader.GetLibItemsAsync(token);
-            var referenceItemGroups = await packageContentReader.GetReferenceItemsAsync(token);
-            var frameworkReferenceGroups = await packageContentReader.GetFrameworkItemsAsync(token);
-            var contentFileGroups = await packageContentReader.GetContentItemsAsync(token);
-            var buildFileGroups = await packageContentReader.GetBuildItemsAsync(token);
-            var toolItemGroups = await packageContentReader.GetToolItemsAsync(token);
-            var depsGroups = await packageContentReader.GetPackageDependenciesAsync(token);
+            var libItemGroups = await packageReader.GetLibItemsAsync(token);
+            //var referenceItemGroups = await packageReader.GetReferenceItemsAsync(token);
+            //var frameworkReferenceGroups = await packageReader.GetFrameworkItemsAsync(token);
+            //var contentFileGroups = await packageReader.GetContentItemsAsync(token);
+            //var buildFileGroups = await packageReader.GetBuildItemsAsync(token);
+            var toolItemGroups = await packageReader.GetToolItemsAsync(token);
+            var depsGroups = await packageReader.GetPackageDependenciesAsync(token);
 
-            IEnumerable<FrameworkSpecificGroup> refItemGroups = null;
-
-            if (packageReader is PackageArchiveReader reader)
-                refItemGroups = await reader.GetItemsAsync(PackagingConstants.Folders.Ref, token);
-            else if (packageReader is PackageFolderReader reader2)
-                refItemGroups = await reader2.GetItemsAsync(PackagingConstants.Folders.Ref, token);
+            IEnumerable<FrameworkSpecificGroup> refItemGroups = await packageReader.GetItemsAsync(PackagingConstants.Folders.Ref, token);
 
             var sha256 = "";
             if (!_skipSha256)
@@ -167,14 +164,14 @@ namespace nuget2bazel
                 sha256 = GetSha(downloadResourceResult.PackageStream);
             }
             var entry = new WorkspaceEntry(packageIdentity, sha256,
-                depsGroups, libItemGroups, toolItemGroups, refItemGroups, _mainFile, _variable);
+                depsGroups, libItemGroups, libItemGroups, toolItemGroups, refItemGroups, _mainFile, _variable);
 
             if (!SdkList.Dlls.Contains(entry.PackageIdentity.Id.ToLower()))
             {
                 await AddEntry(entry);
             }
 
-            return await base.InstallPackageAsync(packageIdentity, downloadResourceResult, nuGetProjectContext, token);
+            return true;
         }
 
         public virtual async Task AddEntry(WorkspaceEntry entry)
@@ -199,7 +196,7 @@ namespace nuget2bazel
             var updated = updater.RemoveEntry(workspace, packageIdentity.Id, ProjectConfig.Indent);
             await SaveWorkspaceAsync(updated);
 
-            return await base.UninstallPackageAsync(packageIdentity, nuGetProjectContext, token);
+            return true;
         }
     }
 }

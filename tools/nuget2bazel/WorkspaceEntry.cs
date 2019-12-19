@@ -18,7 +18,8 @@ namespace nuget2bazel
         {
         }
         public WorkspaceEntry(PackageIdentity identity, string sha256, IEnumerable<PackageDependencyGroup> deps,
-            IEnumerable<FrameworkSpecificGroup> libs, IEnumerable<FrameworkSpecificGroup> tools, IEnumerable<FrameworkSpecificGroup> references,
+            IEnumerable<FrameworkSpecificGroup> libs, IEnumerable<FrameworkSpecificGroup> runtimeSpecificLibs, IEnumerable<FrameworkSpecificGroup> tools,
+            IEnumerable<FrameworkSpecificGroup> references,
             string mainFile, string variable)
         {
             var netFrameworkTFMs = new string[]
@@ -43,7 +44,12 @@ namespace nuget2bazel
             Mono_Files = GetFiles(monoFramework, libs, tools);
 
             var depConverted = deps.Select(x =>
-                new FrameworkSpecificGroup(x.TargetFramework, x.Packages.Select(y => y.Id.ToLower())));
+                new FrameworkSpecificGroup(x.TargetFramework, x.Packages.Select(y => y.Id.ToLower()).Except(new []
+                {
+                    // These are empty projects
+                    "microsoft.netcore.platforms",
+                    "runtime.native.system.data.sqlclient.sni"
+                })));
             Core_Deps = GetDepsCore(coreFrameworks, depConverted);
             Net_Deps = GetDepsNet(netFrameworks, depConverted);
             Mono_Deps = MSBuildNuGetProjectSystemUtility.GetMostCompatibleGroup(monoFramework, depConverted)?.Items?.Select(x => ToRefMono(x));
@@ -109,12 +115,18 @@ namespace nuget2bazel
             var result = new Dictionary<string, IEnumerable<string>>();
             foreach (var framework in frameworks)
             {
-                var deps = MSBuildNuGetProjectSystemUtility.GetMostCompatibleGroup(framework, groups)?.Items?.Select(x => ToRefCore(x, framework))?.Where(y => y != null);
+                var group = MSBuildNuGetProjectSystemUtility.GetMostCompatibleGroup(framework, groups);
+                var deps = group?.Items?.Select(x => ToRef(x, framework))?.Where(y => y != null);
                 if (deps != null)
                     result.Add(framework.GetShortFolderName(), deps);
             }
 
             return result;
+
+            string ToRef(string id, NuGetFramework fw)
+            {
+                return fw.Framework.Equals(".NETStandard") ? ToRefNet(id, fw) : ToRefCore(id, fw);
+            }
         }
 
         private IEnumerable<string> GetFiles(NuGetFramework framework, IEnumerable<FrameworkSpecificGroup> libs,

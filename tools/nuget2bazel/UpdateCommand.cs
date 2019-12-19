@@ -28,23 +28,20 @@ namespace nuget2bazel
         public async Task DoWithProject(string package, string version, ProjectBazelManipulator project, bool lowest)
         {
 
-            var logger = new Logger();
+            //var logger = new Logger();
             var providers = new List<Lazy<INuGetResourceProvider>>();
             providers.AddRange(Repository.Provider.GetCoreV3());  // Add v3 API support
             var packageSource = new PackageSource("https://api.nuget.org/v3/index.json");
             var sourceRepository = new SourceRepository(packageSource, providers);
-            var packageMetadataResource = await sourceRepository.GetResourceAsync<PackageMetadataResource>();
+            //var packageMetadataResource = await sourceRepository.GetResourceAsync<PackageMetadataResource>();
             var verParsed = NuGetVersion.Parse(version);
-            var identity = new NuGet.Packaging.Core.PackageIdentity(package, verParsed);
-            var content = new SourceCacheContext();
-            var found = await packageMetadataResource.GetMetadataAsync(identity, content, logger, CancellationToken.None);
+            var identity = new PackageIdentity(package, verParsed);
+            //var content = new SourceCacheContext();
+            //var found = await packageMetadataResource.GetMetadataAsync(identity, content, logger, CancellationToken.None);
 
             var settings = Settings.LoadDefaultSettings(project.ProjectConfig.RootPath, null, new MachineWideSettings());
             var sourceRepositoryProvider = new SourceRepositoryProvider(settings, providers);
-            var packageManager = new NuGetPackageManager(sourceRepositoryProvider, settings, project.ProjectConfig.RootPath)
-            {
-                PackagesFolderNuGetProject = project
-            };
+            var packageManager = new NuGetPackageManager(sourceRepositoryProvider, settings, project.ProjectConfig.RootPath);
 
             const bool allowPrereleaseVersions = true;
             const bool allowUnlisted = false;
@@ -58,7 +55,6 @@ namespace nuget2bazel
                 new SourceRepository[] { sourceRepository },
                 Array.Empty<SourceRepository>(),  // This is a list of secondary source respositories, probably empty
                 CancellationToken.None);
-            project.NuGetProjectActions = actions;
 
             var sourceCacheContext = new SourceCacheContext();
             await packageManager.ExecuteNuGetProjectActionsAsync(project, actions, projectContext, sourceCacheContext,

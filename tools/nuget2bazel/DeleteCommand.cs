@@ -29,10 +29,7 @@ namespace nuget2bazel
             var sourceRepositoryProvider = new SourceRepositoryProvider(settings, providers);
             var solutionManager = new BazelSolutionManager(project, prjConfig.RootPath);
             var deleteManager = new DeleteOnRestart();
-            var packageManager = new NuGetPackageManager(sourceRepositoryProvider, settings, solutionManager, deleteManager)
-            {
-                PackagesFolderNuGetProject = project,
-            };
+            var packageManager = new NuGetPackageManager(sourceRepositoryProvider, settings, solutionManager, deleteManager);
 
             var projectContext = new ProjectContext(settings);
             var uninstallContext = new UninstallationContext(true, true);
