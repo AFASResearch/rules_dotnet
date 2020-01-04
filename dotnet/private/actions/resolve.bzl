@@ -19,10 +19,7 @@ def _ResolveVersions(targets):
 
     for d, v in targets:
         if type(d) == "Target":
-            if type(d[DotnetLibrary].result) == "File":
-                key = d[DotnetLibrary].result.basename
-            else:
-                key = d[DotnetLibrary].result[0].basename
+            key = d[DotnetLibrary].result.basename
         else:
             key = d.basename
         found = matched_versions.get(key)

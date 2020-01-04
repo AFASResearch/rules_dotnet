@@ -14,14 +14,14 @@ def _import_library_impl(ctx):
 
     deps = ctx.attr.deps
     src = ctx.attr.src
-    result = [f for s in src for f in s.files.to_list()]
+    result = src.files.to_list()[0]
 
     if ctx.attr.data != None:
         data = depset(direct = [], transitive = [t.files for t in ctx.attr.data])
     else:
         data = depset()
 
-    runfiles = depset(direct = result, transitive = [d[DotnetLibrary].runfiles for d in deps] + [data])
+    runfiles = depset(direct = [result], transitive = [d[DotnetLibrary].runfiles for d in deps] + [data])
     transitive = depset(direct = deps, transitive = [a[DotnetLibrary].transitive for a in deps])
 
     library = new_library(
@@ -37,7 +37,7 @@ def _import_library_impl(ctx):
     return [
         library,
         DefaultInfo(
-            files = depset(library.result),
+            files = depset([library.result]),
             runfiles = ctx.runfiles(files = [], transitive_files = library.runfiles),
         ),
     ]
@@ -46,7 +46,7 @@ dotnet_import_library = rule(
     _import_library_impl,
     attrs = {
         "deps": attr.label_list(providers = [DotnetLibrary]),
-        "src": attr.label_list(allow_files = [".dll", ".exe"], mandatory = True),
+        "src": attr.label(allow_files = [".dll", ".exe"], mandatory = True),
         "data": attr.label_list(allow_files = True),
         "version": attr.string(),
     },
@@ -57,7 +57,7 @@ dotnet_import_binary = rule(
     _import_library_impl,
     attrs = {
         "deps": attr.label_list(providers = [DotnetLibrary]),
-        "src": attr.label_list(allow_files = [".dll", ".exe"], mandatory = True),
+        "src": attr.label(allow_files = [".dll", ".exe"], mandatory = True),
         "data": attr.label_list(allow_files = True),
         "version": attr.string(),
     },
@@ -68,7 +68,7 @@ core_import_library = rule(
     _import_library_impl,
     attrs = {
         "deps": attr.label_list(providers = [DotnetLibrary]),
-        "src": attr.label_list(allow_files = [".dll", ".exe"], mandatory = True),
+        "src": attr.label(allow_files = [".dll", ".exe"], mandatory = True),
         "data": attr.label_list(allow_files = True),
         "version": attr.string(),
     },
@@ -79,7 +79,7 @@ core_import_binary = rule(
     _import_library_impl,
     attrs = {
         "deps": attr.label_list(providers = [DotnetLibrary]),
-        "src": attr.label_list(allow_files = [".dll", ".exe"], mandatory = True),
+        "src": attr.label(allow_files = [".dll", ".exe"], mandatory = True),
         "data": attr.label_list(allow_files = True),
         "version": attr.string(),
     },
@@ -90,7 +90,7 @@ net_import_library = rule(
     _import_library_impl,
     attrs = {
         "deps": attr.label_list(providers = [DotnetLibrary]),
-        "src": attr.label_list(allow_files = [".dll", ".exe"], mandatory = True),
+        "src": attr.label(allow_files = [".dll", ".exe"], mandatory = True),
         "data": attr.label_list(allow_files = True),
         "version": attr.string(),
     },
@@ -101,7 +101,7 @@ net_import_binary = rule(
     _import_library_impl,
     attrs = {
         "deps": attr.label_list(providers = [DotnetLibrary]),
-        "src": attr.label_list(allow_files = [".dll", ".exe"], mandatory = True),
+        "src": attr.label(allow_files = [".dll", ".exe"], mandatory = True),
         "data": attr.label_list(allow_files = True),
         "version": attr.string(),
     },
