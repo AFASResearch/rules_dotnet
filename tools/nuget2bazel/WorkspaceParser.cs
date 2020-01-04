@@ -59,6 +59,7 @@ namespace nuget2bazel
 
             string package = null;
             string version = null;
+            string source = null;
 
             RequireToken(TokenCode.NUGET_PACKAGE);
             RequireToken(TokenCode.LPAR);
@@ -70,16 +71,7 @@ namespace nuget2bazel
                 switch (token)
                 {
                     case TokenCode.NAME:
-                        RequireToken(TokenCode.NAME);
-                        RequireToken(TokenCode.EQUAL);
-                        try
-                        {
-                            RequireToken(TokenCode.STRING);
-                        }
-                        catch (UnexpectedToken ex)
-                        {
-                            result.Variable = ex.Literal;
-                        }
+                        result.Name = RequireAssignment(TokenCode.NAME);
                         break;
                     case TokenCode.CORE_FILES:
                         result.Core_Files = RequireDictionaryList(TokenCode.CORE_FILES);
@@ -111,6 +103,9 @@ namespace nuget2bazel
                     case TokenCode.VERSION:
                         version = RequireAssignment(TokenCode.VERSION);
                         break;
+                    case TokenCode.SOURCE:
+                        source = RequireAssignment(TokenCode.SOURCE);
+                        break;
                     case TokenCode.SHA256:
                         result.Sha256 = RequireAssignment(TokenCode.SHA256);
                         break;
@@ -135,6 +130,7 @@ namespace nuget2bazel
             }
 
             result.PackageIdentity = new PackageIdentity(package, new NuGetVersion(version));
+            result.PackageSource = source;
 
             return result;
         }
@@ -263,6 +259,7 @@ namespace nuget2bazel
             NAME,
             PACKAGE,
             VERSION,
+            SOURCE,
             SHA256,
             CORE_LIB,
             NET_LIB,
@@ -342,6 +339,7 @@ namespace nuget2bazel
             if (str == "name") return (TokenCode.NAME, null);
             if (str == "package") return (TokenCode.PACKAGE, null);
             if (str == "version") return (TokenCode.VERSION, null);
+            if (str == "source") return (TokenCode.SOURCE, null);
             if (str == "sha256") return (TokenCode.SHA256, null);
             if (str == "core_lib") return (TokenCode.CORE_LIB, null);
             if (str == "net_lib") return (TokenCode.NET_LIB, null);

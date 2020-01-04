@@ -164,7 +164,7 @@ namespace nuget2bazel
                 sha256 = GetSha(downloadResourceResult.PackageStream);
             }
             var entry = new WorkspaceEntry(packageIdentity, sha256,
-                depsGroups, libItemGroups, libItemGroups, toolItemGroups, refItemGroups, _mainFile, _variable);
+                depsGroups, libItemGroups, toolItemGroups, refItemGroups, _mainFile, _variable);
 
             if (!SdkList.Dlls.Contains(entry.PackageIdentity.Id.ToLower()))
             {

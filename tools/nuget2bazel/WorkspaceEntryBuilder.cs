@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NuGet.Client;
 using NuGet.ContentModel;
@@ -36,7 +37,7 @@ namespace nuget2bazel
             return this;
         }
 
-        public WorkspaceEntry Build(LocalPackageSourceInfo localPackageSourceInfo)
+        public IEnumerable<WorkspaceEntry> Build(LocalPackageSourceInfo localPackageSourceInfo)
         {
             var collection = new ContentItemCollection();
             collection.Load(localPackageSourceInfo.Package.Files);
@@ -77,9 +78,60 @@ namespace nuget2bazel
             
             var sha256 = "";
 
-            return new WorkspaceEntry(new PackageIdentity(localPackageSourceInfo.Package.Id, localPackageSourceInfo.Package.Version), sha256,
-                //  TODO For now we pass runtime as deps. This should be different elements in bazel tasks
-                depsGroups, runtimeItemGroups ?? libItemGroups, runtimeItemGroups, toolItemGroups, Array.Empty<FrameworkSpecificGroup>(), _mainFile, null);
+            var source = localPackageSourceInfo.Package.Id.StartsWith("afas.", StringComparison.OrdinalIgnoreCase) ||
+                         localPackageSourceInfo.Package.Id.EndsWith(".by.afas", StringComparison.OrdinalIgnoreCase)
+                ? "https://nuget.afasgroep.nl/api/v2/package"
+                : null;
+
+            var dlls = runtimeItemGroups
+                .SelectMany(g => g.Items)
+                .Select(Path.GetFileNameWithoutExtension)
+                .Distinct(StringComparer.OrdinalIgnoreCase);
+            if(dlls.Count() > 1)
+            {
+                var additionalDlls = dlls.Where(p => !string.Equals(p, localPackageSourceInfo.Package.Id, StringComparison.OrdinalIgnoreCase));
+
+                // Some nuget packages contain multiple dll's required at compile time.
+                // The bazel rules do not support this, but we can fake this by creating mock packages for each additional dll.
+
+                // TODO add additional dep
+                // TODO create additional entry
+                // TODO remove from runtimeItems
+                foreach (var additionalDll in additionalDlls)
+                {
+                    yield return new WorkspaceEntry(new PackageIdentity(localPackageSourceInfo.Package.Id, localPackageSourceInfo.Package.Version), sha256,
+                        Array.Empty<PackageDependencyGroup>(), 
+                        FilterSpecificDll(runtimeItemGroups, additionalDll), 
+                        Array.Empty<FrameworkSpecificGroup>(), 
+                        Array.Empty<FrameworkSpecificGroup>(), _mainFile, null,
+                        packageSource: source,
+                        name: additionalDll);
+                }
+                
+                // Add a root package that refs all additional dlls
+
+                var addedDeps = depsGroups.Select(d => new PackageDependencyGroup(d.TargetFramework, 
+                    d.Packages.Concat(additionalDlls.Select(dll => new PackageDependency(dll)))));
+
+                yield return new WorkspaceEntry(new PackageIdentity(localPackageSourceInfo.Package.Id, localPackageSourceInfo.Package.Version), sha256,
+                    addedDeps, 
+                    // In case there is a dll with the packages name we still ref it on the root package.
+                    FilterSpecificDll(runtimeItemGroups, localPackageSourceInfo.Package.Id), 
+                    toolItemGroups, 
+                    Array.Empty<FrameworkSpecificGroup>(),  _mainFile, null, 
+                    packageSource: source);
+            }
+            else
+            {
+                yield return new WorkspaceEntry(new PackageIdentity(localPackageSourceInfo.Package.Id, localPackageSourceInfo.Package.Version), sha256,
+                    //  TODO For now we pass runtime as deps. This should be different elements in bazel tasks
+                    depsGroups, runtimeItemGroups ?? libItemGroups, toolItemGroups, Array.Empty<FrameworkSpecificGroup>(), _mainFile, null,
+                    packageSource: source);
+            }
         }
+
+        private IEnumerable<FrameworkSpecificGroup> FilterSpecificDll(IEnumerable<FrameworkSpecificGroup> groups, string dll) =>
+            groups.Select(g => new FrameworkSpecificGroup(g.TargetFramework,
+                g.Items.Where(f => string.Equals(Path.GetFileNameWithoutExtension(f), dll, StringComparison.OrdinalIgnoreCase))));
     }
 }

@@ -14,7 +14,7 @@ namespace nuget2bazel
         {
             var section = ExtractSection(currentWorkspace);
             var parser = new WorkspaceParser(section);
-            var parsed = parser.Parse().Where(x => x.PackageIdentity.Id.ToLower() != toadd.PackageIdentity.Id.ToLower()).ToList();
+            var parsed = parser.Parse().Where(x => x.Name.ToLower() != toadd.Name.ToLower()).ToList();
             parsed.Add(toadd);
 
             var sb = new StringBuilder();

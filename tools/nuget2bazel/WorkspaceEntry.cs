@@ -14,14 +14,19 @@ namespace nuget2bazel
 {
     public class WorkspaceEntry
     {
+        public string PackageSource;
+
+        public string Name { get; set; }
+
         public WorkspaceEntry()
         {
         }
         public WorkspaceEntry(PackageIdentity identity, string sha256, IEnumerable<PackageDependencyGroup> deps,
-            IEnumerable<FrameworkSpecificGroup> libs, IEnumerable<FrameworkSpecificGroup> runtimeSpecificLibs, IEnumerable<FrameworkSpecificGroup> tools,
+            IEnumerable<FrameworkSpecificGroup> libs, IEnumerable<FrameworkSpecificGroup> tools,
             IEnumerable<FrameworkSpecificGroup> references,
-            string mainFile, string variable)
+            string mainFile, string variable, string packageSource = null, string name = null)
         {
+            PackageSource = packageSource;
             var netFrameworkTFMs = new string[]
             {
                 "net45", "net451", "net452", "net46", "net461", "net462", "net47", "net471", "net472", "netstandard1.0",
@@ -30,11 +35,12 @@ namespace nuget2bazel
             };
             var coreFrameworkTFMs = new string[]
             {
-                "netcoreapp2.0", "netcoreapp2.1",
+                "netcoreapp2.0", "netcoreapp2.1", "netcoreapp2.2",
             };
             PackageIdentity = identity;
             Sha256 = sha256;
             Variable = variable;
+            Name = name ?? PackageIdentity.Id;
             var coreFrameworks = coreFrameworkTFMs.Select(x => NuGetFramework.Parse(x));
             var netFrameworks = netFrameworkTFMs.Select(x => NuGetFramework.Parse(x));
             var monoFramework = NuGetFramework.Parse("net70");
@@ -195,12 +201,16 @@ namespace nuget2bazel
             var sb = new StringBuilder();
             sb.Append($"{i}nuget_package(\n");
             if (Variable == null)
-                sb.Append($"{i}    name = \"{PackageIdentity.Id.ToLower()}\",\n");
+                sb.Append($"{i}    name = \"{Name?.ToLower() ?? PackageIdentity.Id.ToLower()}\",\n");
             else
-                sb.Append($"{i}    name = {Variable},\n");
+                sb.Append($"{i}    name = {Name?.ToLower() ?? Variable},\n");
 
             sb.Append($"{i}    package = \"{PackageIdentity.Id.ToLower()}\",\n");
             sb.Append($"{i}    version = \"{PackageIdentity.Version}\",\n");
+            if (!string.IsNullOrEmpty(PackageSource))
+            {
+                sb.Append($"{i}    source = \"{PackageSource}\",\n");
+            }
             if (!String.IsNullOrEmpty(Sha256))
                 sb.Append($"{i}    sha256 = \"{Sha256}\",\n");
             if (CoreLib != null && CoreLib.Any())

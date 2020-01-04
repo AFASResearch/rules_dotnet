@@ -17,6 +17,7 @@ using NuGet.PackageManagement;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
 using NuGet.ProjectManagement;
+using NuGet.ProjectModel;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 using NuGet.Repositories;
@@ -47,8 +48,13 @@ namespace nuget2bazel
                 var remoteWalkContext = CreateRemoteWalkContext(settings, cache, logger);
                 var localPackageExtractor = new LocalPackageExtractor(settings, logger, cache);
 
-                var targetFramework = NuGetFramework.Parse("netcoreapp2.1");
+                var targetFramework = NuGetFramework.Parse("netcoreapp2.2");
                 var targetRuntime = "win";
+
+                remoteWalkContext.ProjectLibraryProviders.Add(new PackageSpecReferenceDependencyProvider(GetProjects(targetFramework, package, version), logger));
+
+                package = "Root";
+                version = "1.0.0";
 
                 var independentGraph = await GetIndependentGraph(package, version, targetFramework, remoteWalkContext);
                 // We could target multiple runtimes with RuntimeGraph.Merge
@@ -59,10 +65,11 @@ namespace nuget2bazel
 
                 var json2 = await project.GetJsonAsync();
 
-                var localPackages = await Task.WhenAll(platformSpecificGraph.Flattened.Select(i =>
-                    localPackageExtractor.EnsureLocalPackage(i.Data.Match.Provider, ToPackageIdentity(i.Data.Match))));
+                var localPackages = await Task.WhenAll(platformSpecificGraph.Flattened
+                    .Where(i => i.Key.Name != package)
+                    .Select(i => localPackageExtractor.EnsureLocalPackage(i.Data.Match.Provider, ToPackageIdentity(i.Data.Match))));
 
-                foreach (var entry in localPackages.Select(workspaceEntryBuilder.Build))
+                foreach (var entry in localPackages.SelectMany(workspaceEntryBuilder.Build))
                 {
                     if (!SdkList.Dlls.Contains(entry.PackageIdentity.Id.ToLower()))
                     {
@@ -72,6 +79,85 @@ namespace nuget2bazel
 
                 await project.SaveJsonAsync(json2);
             }
+        }
+
+        private IEnumerable<ExternalProjectReference> GetProjects(NuGetFramework framework, string p, string v)
+        {
+            var deps = new[]
+            {
+                ("Afas.Core", "1.1.0-z19110504-master-93e96075e5"),
+                ("Afas.Cqrs", "1.1.0-z19110504-master-93e96075e5"),
+                ("Afas.Cqrs.Testing", "1.1.0-z19110504-master-93e96075e5"),
+                ("Afas.Runtime", "1.1.0-z19110504-master-93e96075e5"),
+                ("Afas.Cqrs.Interop.Client", "1.1.0-z19110504-master-93e96075e5"),
+                ("Afas.Cqrs.Interop.Interfaces", "1.1.0-z19110504-master-93e96075e5"),
+                ("Afas.Cqrs.Interop", "1.1.0-z19110504-master-93e96075e5"),
+                ("Afas.Cqrs.Client", "1.1.0-z19110504-master-93e96075e5"),
+
+                ("Newtonsoft.Json", "12.0.2"),
+                ("newtonsoft.json.schema", "3.0.10"),
+                ("Stateless", "4.2.1"),
+                ("Stimulsoft.Reports.Web.NetCore", "2019.2.3"),
+                ("DocumentFormat.OpenXml", "2.9.1"),
+                ("Castle.Core", "4.3.1"),
+                ("CsvHelper", "12.1.2"),
+                ("morelinq", "3.0.0"),
+                ("Ardalis.GuardClauses", "1.2.3"),
+                ("MimeTypes", "1.0.6"),
+                ("LibGit2Sharp", "0.26.0"),
+                ("System.IO.Packaging", "4.5.0"),
+                ("System.Configuration.ConfigurationManager", "4.5.0"),
+                ("System.Security.Permissions", "4.5.0"),
+                ("System.Management", "4.5.0"),
+                ("Microsoft.AspNet.WebApi.Client", "5.2.7"),
+                ("Microsoft.NET.Test.Sdk", "16.0.1"),
+                ("NUnit", "3.11.0"),
+                ("NUnit3TestAdapter", "3.13.0"),
+                ("FakeItEasy", "5.1.1"),
+                ("FluentAssertions", "5.6.0"),
+                ("FluentAssertions.Json", "5.0.0"),
+                ("Selenium.RC", "3.1.0"),
+                ("Selenium.Support", "3.141.0"),
+                ("Selenium.WebDriver", "3.141.0"),
+                ("Selenium.WebDriver.ChromeDriver", "3865.4000-beta"),
+                ("Selenium.WebDriverBackedSelenium", "3.141.0"),
+                ("SpecFlow", "3.0.199"),
+                ("SpecFlow.CustomPlugin", "3.0.199"),
+                ("SpecFlow.NUnit", "3.0.199"),
+                ("SpecFlow.NUnit.Runners", "3.0.199"),
+                ("SpecFlow.Tools.MsBuild.Generation", "3.0.199"),
+                ("BrowserStackLocal", "1.4.0"),
+            };
+
+            PackageSpec project = new PackageSpec(new List<TargetFrameworkInformation>()
+            {
+                new TargetFrameworkInformation
+                {
+                    FrameworkName = framework
+                }
+            });
+            project.Name = "Root";
+            project.Version = NuGetVersion.Parse("1.0.0");
+
+            project.Dependencies = new List<LibraryDependency>();
+
+            foreach(var (package, version) in deps)
+            {
+                project.Dependencies.Add(new LibraryDependency(
+                    new LibraryRange(package, VersionRange.Parse(version), LibraryDependencyTarget.Package),
+                    LibraryDependencyType.Build,
+                    includeType: LibraryIncludeFlags.None,
+                    suppressParent: LibraryIncludeFlags.All,
+                    noWarn: new List<NuGetLogCode>(),
+                    autoReferenced: true,
+                    generatePathProperty: false));
+            }
+
+            yield return new ExternalProjectReference(
+                project.Name,
+                project,
+                msbuildProjectPath: null,
+                projectReferences: Enumerable.Empty<string>());
         }
 
         private RemoteWalkContext CreateRemoteWalkContext(ISettings settings, SourceCacheContext cache, ILogger logger)
