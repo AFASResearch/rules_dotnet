@@ -6,6 +6,8 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
 using NuGet.Commands;
 using NuGet.Common;
 using NuGet.Configuration;
@@ -51,19 +53,19 @@ namespace nuget2bazel
                 var targetFramework = NuGetFramework.Parse("netcoreapp2.2");
                 var targetRuntime = "win";
 
-                remoteWalkContext.ProjectLibraryProviders.Add(new PackageSpecReferenceDependencyProvider(GetProjects(targetFramework, package, version), logger));
+                remoteWalkContext.ProjectLibraryProviders.Add(new PackageSpecReferenceDependencyProvider(GetProjects(project.ProjectConfig.RootPath, targetFramework), logger));
 
-                package = "Root";
-                version = "1.0.0";
+                var rootProject = "Root";
+                var rootProjectVersion = "1.0.0";
 
-                var independentGraph = await GetIndependentGraph(package, version, targetFramework, remoteWalkContext);
+                var independentGraph = await GetIndependentGraph(rootProject, rootProjectVersion, targetFramework, remoteWalkContext);
                 // We could target multiple runtimes with RuntimeGraph.Merge
-                var platformSpecificGraph = await GetPlatformSpecificGraph(independentGraph, package, version, targetFramework, targetRuntime, remoteWalkContext, localPackageExtractor);
+                var platformSpecificGraph = await GetPlatformSpecificGraph(independentGraph, rootProject, rootProjectVersion, targetFramework, targetRuntime, remoteWalkContext, localPackageExtractor);
 
-                var json2 = await project.GetJsonAsync();
+                var json = await project.GetJsonAsync();
 
                 var localPackages = await Task.WhenAll(platformSpecificGraph.Flattened
-                    .Where(i => i.Key.Name != package)
+                    .Where(i => i.Key.Name != rootProject)
                     .Select(i => localPackageExtractor.EnsureLocalPackage(i.Data.Match.Provider, ToPackageIdentity(i.Data.Match))));
 
                 var workspaceEntryBuilder = new WorkspaceEntryBuilder(platformSpecificGraph.Conventions, mainFile)
@@ -83,57 +85,76 @@ namespace nuget2bazel
                     }
                 }
 
-                await project.SaveJsonAsync(json2);
+                await project.SaveJsonAsync(json);
             }
         }
 
-        private IEnumerable<ExternalProjectReference> GetProjects(NuGetFramework framework, string p, string v)
+        private IEnumerable<ExternalProjectReference> GetProjects(string rootPath, NuGetFramework framework)
         {
-            var deps = new[]
-            {
-                ("Afas.Core", "1.1.0-z19110504-master-93e96075e5"),
-                ("Afas.Cqrs", "1.1.0-z19110504-master-93e96075e5"),
-                ("Afas.Cqrs.Testing", "1.1.0-z19110504-master-93e96075e5"),
-                ("Afas.Runtime", "1.1.0-z19110504-master-93e96075e5"),
-                ("Afas.Cqrs.Interop.Client", "1.1.0-z19110504-master-93e96075e5"),
-                ("Afas.Cqrs.Interop.Interfaces", "1.1.0-z19110504-master-93e96075e5"),
-                ("Afas.Cqrs.Interop", "1.1.0-z19110504-master-93e96075e5"),
-                ("Afas.Cqrs.Client", "1.1.0-z19110504-master-93e96075e5"),
+            var packagesProps = XElement.Load(Path.Combine(rootPath, "Packages.Props"));
 
-                ("Newtonsoft.Json", "12.0.2"),
-                ("newtonsoft.json.schema", "3.0.10"),
-                ("Stateless", "4.2.1"),
-                ("Stimulsoft.Reports.Web.NetCore", "2019.2.3"),
-                ("DocumentFormat.OpenXml", "2.9.1"),
-                ("Castle.Core", "4.3.1"),
-                ("CsvHelper", "12.1.2"),
-                ("morelinq", "3.0.0"),
-                ("Ardalis.GuardClauses", "1.2.3"),
-                ("MimeTypes", "1.0.6"),
-                ("LibGit2Sharp", "0.26.0"),
-                ("System.IO.Packaging", "4.5.0"),
-                ("System.Configuration.ConfigurationManager", "4.5.0"),
-                ("System.Security.Permissions", "4.5.0"),
-                ("System.Management", "4.5.0"),
-                ("Microsoft.AspNet.WebApi.Client", "5.2.7"),
-                ("Microsoft.NET.Test.Sdk", "16.0.1"),
-                ("NUnit", "3.11.0"),
-                ("NUnit3TestAdapter", "3.13.0"),
-                ("FakeItEasy", "5.1.1"),
-                ("FluentAssertions", "5.6.0"),
-                ("FluentAssertions.Json", "5.0.0"),
-                ("Selenium.RC", "3.1.0"),
-                ("Selenium.Support", "3.141.0"),
-                ("Selenium.WebDriver", "3.141.0"),
-                ("Selenium.WebDriver.ChromeDriver", "3865.4000-beta"),
-                ("Selenium.WebDriverBackedSelenium", "3.141.0"),
-                ("SpecFlow", "3.0.199"),
-                ("SpecFlow.CustomPlugin", "3.0.199"),
-                ("SpecFlow.NUnit", "3.0.199"),
-                ("SpecFlow.NUnit.Runners", "3.0.199"),
-                ("SpecFlow.Tools.MsBuild.Generation", "3.0.199"),
-                ("BrowserStackLocal", "1.4.0"),
-            };
+            if(packagesProps == null)
+            {
+                throw new Exception("No package props could be found.");
+            }
+
+            var deps = packagesProps
+                .Element("ItemGroup")
+                .Elements("PackageReference")
+                .Select(el => (el.Attribute("Update")?.Value, el.Attribute("Version")?.Value))
+                .Where(Included)
+                .ToArray();
+
+            bool Included((string update, string version) arg) =>
+                !string.IsNullOrEmpty(arg.update) &&
+                !string.IsNullOrEmpty(arg.version) &&
+                !arg.version.Equals("1.0.0-local-dev", StringComparison.OrdinalIgnoreCase);
+
+            //var deps = new[]
+            //{
+            //    ("Afas.Core", "1.1.0-z19110504-master-93e96075e5"),
+            //    ("Afas.Cqrs", "1.1.0-z19110504-master-93e96075e5"),
+            //    ("Afas.Cqrs.Testing", "1.1.0-z19110504-master-93e96075e5"),
+            //    ("Afas.Runtime", "1.1.0-z19110504-master-93e96075e5"),
+            //    ("Afas.Cqrs.Interop.Client", "1.1.0-z19110504-master-93e96075e5"),
+            //    ("Afas.Cqrs.Interop.Interfaces", "1.1.0-z19110504-master-93e96075e5"),
+            //    ("Afas.Cqrs.Interop", "1.1.0-z19110504-master-93e96075e5"),
+            //    ("Afas.Cqrs.Client", "1.1.0-z19110504-master-93e96075e5"),
+
+            //    ("Newtonsoft.Json", "12.0.2"),
+            //    ("newtonsoft.json.schema", "3.0.10"),
+            //    ("Stateless", "4.2.1"),
+            //    ("Stimulsoft.Reports.Web.NetCore", "2019.2.3"),
+            //    ("DocumentFormat.OpenXml", "2.9.1"),
+            //    ("Castle.Core", "4.3.1"),
+            //    ("CsvHelper", "12.1.2"),
+            //    ("morelinq", "3.0.0"),
+            //    ("Ardalis.GuardClauses", "1.2.3"),
+            //    ("MimeTypes", "1.0.6"),
+            //    ("LibGit2Sharp", "0.26.0"),
+            //    ("System.IO.Packaging", "4.5.0"),
+            //    ("System.Configuration.ConfigurationManager", "4.5.0"),
+            //    ("System.Security.Permissions", "4.5.0"),
+            //    ("System.Management", "4.5.0"),
+            //    ("Microsoft.AspNet.WebApi.Client", "5.2.7"),
+            //    ("Microsoft.NET.Test.Sdk", "16.0.1"),
+            //    ("NUnit", "3.11.0"),
+            //    ("NUnit3TestAdapter", "3.13.0"),
+            //    ("FakeItEasy", "5.1.1"),
+            //    ("FluentAssertions", "5.6.0"),
+            //    ("FluentAssertions.Json", "5.0.0"),
+            //    ("Selenium.RC", "3.1.0"),
+            //    ("Selenium.Support", "3.141.0"),
+            //    ("Selenium.WebDriver", "3.141.0"),
+            //    ("Selenium.WebDriver.ChromeDriver", "3865.4000-beta"),
+            //    ("Selenium.WebDriverBackedSelenium", "3.141.0"),
+            //    ("SpecFlow", "3.0.199"),
+            //    ("SpecFlow.CustomPlugin", "3.0.199"),
+            //    ("SpecFlow.NUnit", "3.0.199"),
+            //    ("SpecFlow.NUnit.Runners", "3.0.199"),
+            //    ("SpecFlow.Tools.MsBuild.Generation", "3.0.199"),
+            //    ("BrowserStackLocal", "1.4.0"),
+            //};
 
             PackageSpec project = new PackageSpec(new List<TargetFrameworkInformation>()
             {
