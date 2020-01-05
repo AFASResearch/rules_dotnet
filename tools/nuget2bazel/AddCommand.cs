@@ -60,16 +60,22 @@ namespace nuget2bazel
                 // We could target multiple runtimes with RuntimeGraph.Merge
                 var platformSpecificGraph = await GetPlatformSpecificGraph(independentGraph, package, version, targetFramework, targetRuntime, remoteWalkContext, localPackageExtractor);
 
-                var workspaceEntryBuilder = new WorkspaceEntryBuilder(platformSpecificGraph.Conventions, mainFile)
-                    .WithTarget(new FrameworkRuntimePair(targetFramework, targetRuntime));
-
                 var json2 = await project.GetJsonAsync();
 
                 var localPackages = await Task.WhenAll(platformSpecificGraph.Flattened
                     .Where(i => i.Key.Name != package)
                     .Select(i => localPackageExtractor.EnsureLocalPackage(i.Data.Match.Provider, ToPackageIdentity(i.Data.Match))));
 
-                foreach (var entry in localPackages.SelectMany(workspaceEntryBuilder.Build))
+                var workspaceEntryBuilder = new WorkspaceEntryBuilder(platformSpecificGraph.Conventions, mainFile)
+                    .WithTarget(new FrameworkRuntimePair(targetFramework, targetRuntime));
+                
+                // First resolve al file groups
+                var resolved = localPackages.Select(workspaceEntryBuilder.ResolveGroups).ToArray();
+
+                // Then we use them to validate deps actually contain content
+                workspaceEntryBuilder.WithLocalPackages(resolved);
+
+                foreach (var entry in resolved.SelectMany(workspaceEntryBuilder.Build))
                 {
                     if (!SdkList.Dlls.Contains(entry.PackageIdentity.Id.ToLower()))
                     {
