@@ -37,7 +37,6 @@ def _binary_impl(ctx):
         data = ctx.attr.data,
         executable = True,
         keyfile = ctx.attr.keyfile,
-        subdir = subdir,
     )
 
     launcher = dotnet.declare_file(dotnet, path = subdir + executable.result.basename + "_0.exe")

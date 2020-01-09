@@ -114,12 +114,14 @@ def emit_assembly_core(
         fail("either name or out must be set")
 
     if not out:
-        result = dotnet.declare_file(dotnet, path = subdir + name)
+        filename = name
     else:
-        result = dotnet.declare_file(dotnet, path = subdir + out)
+        filename = out
+
+    result = dotnet.declare_file(dotnet, path = subdir + filename)
 
     if dotnet.debug:
-        pdb = dotnet.declare_file(dotnet, path = paths.split_extension(result.path)[0] + ".pdb")
+        pdb = dotnet.declare_file(dotnet, path = subdir + paths.split_extension(filename)[0] + ".pdb")
     else:
         pdb = None
 
