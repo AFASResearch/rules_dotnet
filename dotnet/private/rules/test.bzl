@@ -46,7 +46,6 @@ def _unit_test(ctx):
         data = ctx.attr.data,
         executable = False,
         keyfile = ctx.attr.keyfile,
-        subdir = subdir,
     )
 
     launcher = dotnet.declare_file(dotnet, path = subdir + executable.result.basename + "_0.exe")

@@ -16,7 +16,7 @@ def CopyRunfiles(dotnet, runfiles, copy, symlink, executable, subdir):
                 mnemonic = "LinkFile",
             )
             created.append(newfile)
-        elif f.basename != executable.result.basename:
+        else:
             if f.basename.find("hostfxr") >= 0:
                 version = f.path.split("/")
                 newfile = dotnet.declare_file(dotnet, path = "{}/host/fxr/{}/{}".format(subdir, version[-2], version[-1]))
@@ -30,7 +30,5 @@ def CopyRunfiles(dotnet, runfiles, copy, symlink, executable, subdir):
                 mnemonic = "CopyFile",
             )
             created.append(newfile)
-        elif f.basename == executable.result.basename:
-            created.append(f)
 
     return dotnet._ctx.runfiles(files = created)
