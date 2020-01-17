@@ -88,36 +88,51 @@ namespace nuget2bazel
         public IEnumerable<WorkspaceEntry> Build(LocalPackageWithGroups localPackage)
         {
             var localPackageSourceInfo = localPackage.LocalPackageSourceInfo;
+            var depsGroups = localPackageSourceInfo.Package.Nuspec.GetDependencyGroups();
 
             // We do not support packages without any files
-            if (!localPackage.RuntimeItemGroups.Any(g => g.Items.Any()))
+            if (!localPackage.RuntimeItemGroups.Any(g => g.Items.Any()) && !depsGroups.Any())
             {
                 yield break;
             }
 
-            var depsGroups = localPackageSourceInfo.Package.Nuspec.GetDependencyGroups();
-
             // Only use deps that contain content
-            depsGroups = depsGroups.Select(d => new PackageDependencyGroup(d.TargetFramework, d.Packages.Where(p => HasContent(p, d.TargetFramework))));
+            depsGroups = depsGroups.Select(d => new PackageDependencyGroup(d.TargetFramework, d.Packages.SelectMany(p => RemoveEmptyDeps(p, d.TargetFramework))));
 
-            bool HasContent(PackageDependency dependency, NuGetFramework targetFramework)
+            // TODO consider target framework
+            IEnumerable<PackageDependency> RemoveEmptyDeps(PackageDependency dependency, NuGetFramework targetFramework)
             {
-                if (SdkList.Dlls.Contains(dependency.Id.ToLower()) || !_localPackages.ContainsKey(dependency.Id))
+                if (SdkList.Dlls.Contains(dependency.Id.ToLower()) || !_localPackages.ContainsKey(dependency.Id)
+                    || _localPackages[dependency.Id].RuntimeItemGroups.Any(g => g.Items.Any()))
                 {
-                    return true;
+                    return new [] { dependency };
                 }
 
-                // TODO consider target framework
-                return _localPackages[dependency.Id].RuntimeItemGroups.Any(g => g.Items.Any());
+                var deps = _localPackages[dependency.Id]
+                  .LocalPackageSourceInfo.Package.Nuspec.GetDependencyGroups()
+                  .FirstOrDefault(g => g.TargetFramework == targetFramework);
+
+                if(deps == null)
+                {
+                  return Array.Empty<PackageDependency>();
+                }
+
+                return deps.Packages.SelectMany(p => RemoveEmptyDeps(p, targetFramework));
             }
 
             var sha256 = "";
+            string source = null;
 
-            var source = localPackageSourceInfo.Package.Id.StartsWith("afas.", StringComparison.OrdinalIgnoreCase) ||
-                         localPackageSourceInfo.Package.Id.EndsWith(".by.afas", StringComparison.OrdinalIgnoreCase)
-                ? "https://nuget.afasgroep.nl/api/v2/package"
-                : null;
-
+            if (localPackageSourceInfo.Package.Id.StartsWith("afas.online.", StringComparison.OrdinalIgnoreCase) ||
+                    localPackageSourceInfo.Package.Id.EndsWith(".by.afas", StringComparison.OrdinalIgnoreCase))
+            {
+              source = "https://tfsai.afasgroep.nl/tfs/Next/_packaging/85b0858b-4731-47d3-802b-508ad622fb8e/nuget/v3/flat2";
+            }
+            else if (localPackageSourceInfo.Package.Id.StartsWith("afas.", StringComparison.OrdinalIgnoreCase))
+            {
+              source = "https://tfsai.afasgroep.nl/tfs/Next/_packaging/next/nuget/v3/flat2";
+            }
+            
             // Workaround for ZIP file mode error https://github.com/bazelbuild/bazel/issues/9236
             var version = localPackageSourceInfo.Package.Id.Equals("microsoft.aspnetcore.jsonpatch", StringComparison.OrdinalIgnoreCase) &&
                           localPackageSourceInfo.Package.Version.ToString().Equals("2.0.0", StringComparison.OrdinalIgnoreCase)

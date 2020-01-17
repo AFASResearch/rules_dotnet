@@ -10,6 +10,11 @@ namespace nuget2bazel
     {
         public static string[] Dlls = new string[]
         {
+            "system.runtime.compilerservices.unsafe",
+            "system.text.encoding.codepages",
+            "system.text.encodings.web",
+            //"microsoft.aspnetcore.http.features",
+
             "system.private.corelib",
             "microsoft.csharp",
             "microsoft.visualbasic",
