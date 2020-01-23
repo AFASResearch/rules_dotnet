@@ -123,10 +123,13 @@ namespace nuget2bazel
             var sha256 = "";
             string source = null;
 
-            if (localPackageSourceInfo.Package.Id.StartsWith("afas.online.", StringComparison.OrdinalIgnoreCase) ||
-                    localPackageSourceInfo.Package.Id.EndsWith(".by.afas", StringComparison.OrdinalIgnoreCase))
+            if (localPackageSourceInfo.Package.Id.StartsWith("afas.online.", StringComparison.OrdinalIgnoreCase))
             {
-              source = "https://tfsai.afasgroep.nl/tfs/Next/_packaging/85b0858b-4731-47d3-802b-508ad622fb8e/nuget/v3/flat2";
+              source = "https://tfsai.afasgroep.nl/tfs/Next/_packaging/aol/nuget/v3/flat2";
+            }
+            else if(localPackageSourceInfo.Package.Id.EndsWith(".by.afas", StringComparison.OrdinalIgnoreCase))
+            {
+                source = "https://nuget.afasgroep.nl/api/v2/package";
             }
             else if (localPackageSourceInfo.Package.Id.StartsWith("afas.", StringComparison.OrdinalIgnoreCase))
             {
