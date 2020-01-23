@@ -109,7 +109,7 @@ namespace nuget2bazel
             bool Included((string update, string version) arg) =>
                 !string.IsNullOrEmpty(arg.update) &&
                 !string.IsNullOrEmpty(arg.version) &&
-                !arg.version.Equals("1.0.0-local-dev", StringComparison.OrdinalIgnoreCase);
+                !arg.version.EndsWith("-local-dev", StringComparison.OrdinalIgnoreCase);
 
             PackageSpec project = new PackageSpec(new List<TargetFrameworkInformation>()
             {
