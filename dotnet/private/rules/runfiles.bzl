@@ -6,6 +6,8 @@ load(
 def CopyRunfiles(dotnet, runfiles, copy, symlink, executable, subdir):
     created = []
     for f in runfiles.files.to_list():
+        if f.basename.endswith(".ref.dll"):
+            continue
         if f.basename == "mono" or f.basename == "mono.exe":
             newfile = dotnet.declare_file(dotnet, path = subdir + f.basename)
             dotnet.actions.run(

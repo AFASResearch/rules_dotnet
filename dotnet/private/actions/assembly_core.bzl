@@ -23,11 +23,12 @@ def _map_dep(deps):
 def _map_resource(d):
     return d.result.path + "," + d.identifier
 
-def _make_runner_arglist(dotnet, deps, resources, output, pdb, executable, defines, unsafe, keyfile):
+def _make_runner_arglist(dotnet, deps, resources, output, ref_output, pdb, executable, defines, unsafe, keyfile):
     args = dotnet.actions.args()
 
     # /out:<file>
     args.add(output.path, format = "/out:%s")
+    args.add(ref_output.path, format = "/refout:%s")
 
     if executable:
         target = "exe"
@@ -41,6 +42,7 @@ def _make_runner_arglist(dotnet, deps, resources, output, pdb, executable, defin
     args.add("/nostdlib")
     args.add("/langversion:latest")
     args.add("/nologo")
+    args.add("/deterministic+")
 
     if pdb:
         args.add("-debug:full")
@@ -119,6 +121,7 @@ def emit_assembly_core(
         filename = out
 
     result = dotnet.declare_file(dotnet, path = subdir + filename)
+    ref_result = dotnet.declare_file(dotnet, path = subdir + paths.split_extension(filename)[0] + ".ref.dll")
 
     if dotnet.debug:
         pdb = dotnet.declare_file(dotnet, path = subdir + paths.split_extension(filename)[0] + ".pdb")
@@ -129,7 +132,7 @@ def emit_assembly_core(
 
     transitive, transitive_runfiles = ResolveVersions(deps)
 
-    runner_args = _make_runner_arglist(dotnet, transitive.to_list(), resources, result, pdb, executable, defines, unsafe, keyfile)
+    runner_args = _make_runner_arglist(dotnet, transitive.to_list(), resources, result, ref_result, pdb, executable, defines, unsafe, keyfile)
 
     attr_srcs = [f for t in srcs for f in as_iterable(t.files)]
     runner_args.add_all(attr_srcs)
@@ -144,11 +147,11 @@ def emit_assembly_core(
 
     dotnet.actions.write(output = paramfile, content = runner_args)
 
-    deps_files = [d[DotnetLibrary].result for d in transitive.to_list()]
+    deps_files = [d[DotnetLibrary].ref_result if d[DotnetLibrary].ref_result else d[DotnetLibrary].result for d in transitive.to_list()]
     resource_files = [r.result for rs in resources for r in rs[DotnetResourceList].result]
     dotnet.actions.run(
         inputs = attr_srcs + [paramfile] + deps_files + [dotnet.stdlib] + resource_files,
-        outputs = [result] + ([pdb] if pdb else []),
+        outputs = [result, ref_result] + ([pdb] if pdb else []),
         executable = dotnet.runner,
         arguments = [dotnet.mcs.path, "/noconfig", "@" + paramfile.path],
         mnemonic = "CoreCompile",
@@ -157,7 +160,7 @@ def emit_assembly_core(
         ),
     )
 
-    extra = depset(direct = [result] + [dotnet.stdlib] + ([pdb] if pdb else []), transitive = [t.files for t in data] if data else [])
+    extra = depset(direct = [result, ref_result] + [dotnet.stdlib] + ([pdb] if pdb else []), transitive = [t.files for t in data] if data else [])
     d_direct = extra.to_list()
     d_transitive = depset(transitive_runfiles)
     runfiles = depset(direct = d_direct, transitive = [d_transitive])
@@ -168,6 +171,7 @@ def emit_assembly_core(
         deps = deps,
         transitive = transitive,
         result = result,
+        ref_result = ref_result,
         pdb = pdb,
         runfiles = runfiles,
     )
