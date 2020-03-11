@@ -48,6 +48,8 @@ def _make_runner_arglist(dotnet, deps, resources, output, ref_output, pdb, execu
         args.add("-debug:full")
         args.add("-pdb:" + pdb.path)
 
+    args.add_all(dotnet.no_warns, format_each = "/nowarn:%s")
+
     # /warn
     #args.add(format="/warn:%s", value=str(ctx.attr.warn))
 

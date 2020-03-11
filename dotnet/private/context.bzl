@@ -85,6 +85,7 @@ def dotnet_context(ctx, attr = None):
         shared = context_data._shared,
         debug = ctx.var["COMPILATION_MODE"] == "dbg",
         extra_srcs = context_data._extra_srcs,
+        no_warns = context_data._no_warns,
         _ctx = ctx,
     )
 
@@ -99,6 +100,7 @@ def _dotnet_context_data(ctx):
         _libVersion = ctx.attr.libVersion,
         _toolchain_type = ctx.attr._toolchain_type,
         _extra_srcs = ctx.attr.extra_srcs,
+        _no_warns = ctx.attr.no_warns,
         _framework = ctx.attr.framework,
     )
 
@@ -140,6 +142,9 @@ dotnet_context_data = rule(
         ),
         "extra_srcs": attr.label_list(
             allow_files = True,
+            default = [],
+        ),
+        "no_warns": attr.string_list(
             default = [],
         ),
     },
@@ -185,6 +190,9 @@ core_context_data = rule(
             allow_files = True,
             default = [],
         ),
+        "no_warns": attr.string_list(
+            default = [],
+        ),
     },
 )
 
@@ -227,6 +235,9 @@ net_context_data = rule(
         "extra_srcs": attr.label_list(
             allow_files = True,
             default = ["@net_sdk//:targetframework"],
+        ),
+        "no_warns": attr.string_list(
+            default = [],
         ),
     },
 )
