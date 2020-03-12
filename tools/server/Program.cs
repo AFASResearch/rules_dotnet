@@ -24,8 +24,7 @@ namespace Proto
             Task.Run(() =>
             {
                 var processStartInfo = new ProcessStartInfo(dotnet, $"\"{vbcs}\"");
-                processStartInfo.Environment["DOTNET_CLI_HOME"] = "C:/USERS/TDG";
-                processStartInfo.Environment["PATHEXT"] = ".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.CPL";
+                processStartInfo.Environment["PATHEXT"] = "";
                 processStartInfo.Environment["PATH"] = "";
                 processStartInfo.RedirectStandardError = true;
                 processStartInfo.RedirectStandardOutput = true;
@@ -49,8 +48,7 @@ namespace Proto
 
                     var processStartInfo = new ProcessStartInfo(dotnet, $"\"{csc}\" /shared /noconfig @{argsF}");
 
-                    processStartInfo.Environment["DOTNET_CLI_HOME"] = "C:/USERS/TDG";
-                    processStartInfo.Environment["PATHEXT"] = ".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.CPL";
+                    processStartInfo.Environment["PATHEXT"] = "";
                     processStartInfo.Environment["PATH"] = "";
                     processStartInfo.RedirectStandardError = true;
                     processStartInfo.RedirectStandardOutput = true;
