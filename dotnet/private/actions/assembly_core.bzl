@@ -111,7 +111,8 @@ def emit_assembly_core(
         unsafe = False,
         data = None,
         keyfile = None,
-        subdir = "./"):
+        subdir = "./",
+        server = None):
     """See dotnet/toolchains.rst#binary for full documentation."""
 
     if name == "" and out == None:
@@ -151,16 +152,31 @@ def emit_assembly_core(
 
     deps_files = [d[DotnetLibrary].ref_result if d[DotnetLibrary].ref_result else d[DotnetLibrary].result for d in transitive.to_list()]
     resource_files = [r.result for rs in resources for r in rs[DotnetResourceList].result]
-    dotnet.actions.run(
-        inputs = attr_srcs + [paramfile] + deps_files + [dotnet.stdlib] + resource_files,
-        outputs = [result, ref_result] + ([pdb] if pdb else []),
-        executable = dotnet.runner,
-        arguments = [dotnet.mcs.path, "/noconfig", "@" + paramfile.path],
-        mnemonic = "CoreCompile",
-        progress_message = (
-            "Compiling " + dotnet.label.package + ":" + dotnet.label.name
-        ),
-    )
+
+    if server:
+        dotnet.actions.run(
+            inputs = attr_srcs + [paramfile] + deps_files + [dotnet.stdlib] + resource_files,
+            outputs = [result, ref_result] + ([pdb] if pdb else []),
+            executable = server,
+            arguments = [dotnet.runner.path, dotnet.mcs.path, "@" + paramfile.path],
+            mnemonic = "CoreCompile",
+            execution_requirements = { "supports-multiplex-workers": "1" },
+            tools = [server],
+            progress_message = (
+                "Compiling " + dotnet.label.package + ":" + dotnet.label.name
+            ),
+        )
+    else:
+        dotnet.actions.run(
+            inputs = attr_srcs + [paramfile] + deps_files + [dotnet.stdlib] + resource_files,
+            outputs = [result, ref_result] + ([pdb] if pdb else []),
+            executable = dotnet.runner,
+            arguments = [dotnet.mcs.path, "/noconfig", "@" + paramfile.path],
+            mnemonic = "CoreCompile",
+            progress_message = (
+                "Compiling " + dotnet.label.package + ":" + dotnet.label.name
+            ),
+        )
 
     extra = depset(direct = [result, ref_result] + [dotnet.stdlib] + ([pdb] if pdb else []), transitive = [t.files for t in data] if data else [])
     d_direct = extra.to_list()

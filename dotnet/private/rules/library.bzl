@@ -31,6 +31,7 @@ def _library_impl(ctx):
         data = ctx.attr.data,
         keyfile = ctx.attr.keyfile,
         executable = False,
+        server = ctx.executable.server,
     )
 
     runfiles = ctx.runfiles(files = [], transitive_files = library.runfiles)
@@ -72,6 +73,11 @@ core_library = rule(
         "data": attr.label_list(allow_files = True),
         "keyfile": attr.label(allow_files = True),
         "dotnet_context_data": attr.label(default = Label("@io_bazel_rules_dotnet//:core_context_data")),
+        "server": attr.label(
+            default = Label("@io_bazel_rules_dotnet//tools/server:Compiler.Server.Multiplex"),
+            executable = True,
+            cfg = "host",
+        ),
     },
     toolchains = ["@io_bazel_rules_dotnet//dotnet:toolchain_core"],
     executable = False,
