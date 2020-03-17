@@ -26,8 +26,6 @@ namespace Proto
                 var processStartInfo = new ProcessStartInfo(dotnet, $"\"{vbcs}\"");
                 processStartInfo.Environment["PATHEXT"] = "";
                 processStartInfo.Environment["PATH"] = "";
-                processStartInfo.RedirectStandardError = true;
-                processStartInfo.RedirectStandardOutput = true;
                 serverProcess = Process.Start(processStartInfo);
                 serverProcess?.WaitForExit();
             });
@@ -50,7 +48,6 @@ namespace Proto
 
                     processStartInfo.Environment["PATHEXT"] = "";
                     processStartInfo.Environment["PATH"] = "";
-                    processStartInfo.RedirectStandardError = true;
                     processStartInfo.RedirectStandardOutput = true;
                     var process = Process.Start(processStartInfo);
 
@@ -65,7 +62,7 @@ namespace Proto
                             RequestId = request.RequestId, 
                             Output = output,
                         };
-                        
+
                         response.WriteDelimitedTo(Console.OpenStandardOutput());
                     }
 
