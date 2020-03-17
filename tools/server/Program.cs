@@ -56,14 +56,16 @@ namespace Proto
 
                     if (process != null)
                     {
+                        var output = process.StandardOutput.ReadToEnd();
                         process.WaitForExit();
 
                         var response = new WorkResponse
                         {
                             ExitCode = process.ExitCode, 
                             RequestId = request.RequestId, 
-                            Output = process.StandardOutput.ReadToEnd(),
+                            Output = output,
                         };
+                        
                         response.WriteDelimitedTo(Console.OpenStandardOutput());
                     }
 
