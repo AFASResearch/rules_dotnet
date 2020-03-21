@@ -17,8 +17,8 @@ load(
     "ResolveVersions",
 )
 
-def _map_dep(deps):
-    return deps[DotnetLibrary].result.path
+def _map_dep(d):
+    return d.path
 
 def _map_resource(d):
     return d.result.path + "," + d.identifier
@@ -74,12 +74,12 @@ def _make_runner_arglist(dotnet, deps, resources, output, ref_output, pdb, execu
 
     if keyfile:
         args.add("-keyfile:" + keyfile.files.to_list()[0].path)
-
+        
     # /debug
     #debug = ctx.var.get("BINMODE", "") == "-dbg"
     #if debug:
     #  args.add("/debug")
-
+        
     # /warnaserror
     # TODO(jeremy): /define:name[;name2]
 
@@ -134,8 +134,9 @@ def emit_assembly_core(
     deps_libraries = [d[DotnetLibrary] for d in deps]
 
     transitive, transitive_runfiles = ResolveVersions(deps)
+    deps_files = [d[DotnetLibrary].ref_result if d[DotnetLibrary].ref_result else d[DotnetLibrary].result for d in transitive.to_list()]
 
-    runner_args = _make_runner_arglist(dotnet, transitive.to_list(), resources, result, ref_result, pdb, executable, defines, unsafe, keyfile)
+    runner_args = _make_runner_arglist(dotnet, deps_files, resources, result, ref_result, pdb, executable, defines, unsafe, keyfile)
 
     attr_srcs = [f for t in srcs for f in as_iterable(t.files)]
     runner_args.add_all(attr_srcs)
@@ -143,35 +144,47 @@ def emit_assembly_core(
     attr_extra_srcs = [f for t in dotnet.extra_srcs for f in as_iterable(t.files)]
     runner_args.add_all(attr_extra_srcs)
 
+    runner_args.use_param_file("@%s", use_always = True)
     runner_args.set_param_file_format("multiline")
 
-    paramfilepath = name + ".param"
-    paramfile = dotnet.declare_file(dotnet, path = paramfilepath)
-
-    dotnet.actions.write(output = paramfile, content = runner_args)
-
-    deps_files = [d[DotnetLibrary].ref_result if d[DotnetLibrary].ref_result else d[DotnetLibrary].result for d in transitive.to_list()]
     resource_files = [r.result for rs in resources for r in rs[DotnetResourceList].result]
 
     if server:
+        # Write csc params to file so wa can supply the file to the server
+        paramfilepath = name + ".csc.param"
+        paramfile = dotnet.declare_file(dotnet, path = paramfilepath)
+        dotnet.actions.write(output = paramfile, content = runner_args)
+        
+        worker_args = dotnet.actions.args()
+        worker_args.add(paramfile.path)
+        worker_args.use_param_file("@%s", use_always = True)
+        worker_args.set_param_file_format("multiline")
+
+        # Our compiler server analyzes output dll's to prune the dependency graph
+        unused_refs = dotnet.declare_file(dotnet, path = name + ".unused")
+        worker_args.add(unused_refs.path)
+        # dll to analyze
+        worker_args.add(result.path)
+
         dotnet.actions.run(
             inputs = attr_srcs + [paramfile] + deps_files + [dotnet.stdlib] + resource_files,
-            outputs = [result, ref_result] + ([pdb] if pdb else []),
+            outputs = [result, ref_result, unused_refs] + ([pdb] if pdb else []),
             executable = server,
-            arguments = [dotnet.runner.path, dotnet.mcs.path, "@" + paramfile.path],
+            arguments = [dotnet.runner.path, dotnet.mcs.path, worker_args],
             mnemonic = "CoreCompile",
             execution_requirements = { "supports-multiplex-workers": "1" },
             tools = [server],
             progress_message = (
                 "Compiling " + dotnet.label.package + ":" + dotnet.label.name
             ),
+            unused_inputs_list = unused_refs
         )
     else:
         dotnet.actions.run(
-            inputs = attr_srcs + [paramfile] + deps_files + [dotnet.stdlib] + resource_files,
+            inputs = attr_srcs + deps_files + [dotnet.stdlib] + resource_files,
             outputs = [result, ref_result] + ([pdb] if pdb else []),
             executable = dotnet.runner,
-            arguments = [dotnet.mcs.path, "/noconfig", "@" + paramfile.path],
+            arguments = [dotnet.mcs.path, "/noconfig", runner_args],
             mnemonic = "CoreCompile",
             progress_message = (
                 "Compiling " + dotnet.label.package + ":" + dotnet.label.name

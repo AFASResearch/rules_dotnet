@@ -2,6 +2,20 @@ load("@io_bazel_rules_dotnet//dotnet:defs.bzl", "nuget_package")
 
 def deps():
     nuget_package(
+        name = "dnlib",
+        package = "dnlib",
+        version = "3.3.1",
+        sha256 = "9187093753165e990d8992acce2a55cb3e50faf32625ec94895f58efeb8fb230",
+        core_lib = {
+            "netcoreapp3.1": "lib/netstandard2.0/dnlib.dll",
+        },
+        core_files = {
+            "netcoreapp3.1": [
+               "lib/netstandard2.0/dnlib.dll",
+            ],
+        },
+    )
+    nuget_package(
         name = "google.protobuf",
         package = "google.protobuf",
         version = "3.11.4",
