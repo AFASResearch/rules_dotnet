@@ -105,7 +105,8 @@ namespace Proto
         private static IEnumerable<string> GetReferencedAssemblies(string file)
         {
             var ctx = ModuleDef.CreateModuleContext();
-            ModuleDefMD module = ModuleDefMD.Load(Path.GetFullPath(file), ctx);
+            // Read all bytes so we wont keep the file open
+            ModuleDefMD module = ModuleDefMD.Load(File.ReadAllBytes(Path.GetFullPath(file)), ctx);
             return module.Assembly.ManifestModule.GetAssemblyRefs().Select(r => r.Name.String);
         }
     }
