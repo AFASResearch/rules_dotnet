@@ -16,7 +16,7 @@ def new_library(dotnet, name = None, version = None, deps = None, data = None, r
     transitive = depset(direct = deps, transitive = [a[DotnetLibrary].transitive for a in deps])
     transitive_refs = depset(direct = [ref_result if ref_result else result], transitive = [a[DotnetLibrary].transitive_refs for a in deps])
     runfiles = depset(
-        direct = [result], 
+        direct = [result] + ([pdb] if pdb else []),
         transitive = [a[DotnetLibrary].runfiles for a in deps] + (
             [t.files for t in data] if data else []
         )
