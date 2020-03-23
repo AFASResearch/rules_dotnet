@@ -31,11 +31,11 @@ filegroup(
 filegroup(
     name = "host",
     srcs = glob([
-        "host/**/*",
+        "mono_bin/host/**/*",
     ]),
 )
 
 filegroup(
     name = "native_deps",
-    srcs = glob(["host/**/*"]) + glob(["shared/**/*"]) ,
+    srcs = glob(["mono_bin/host/**/*"]) + glob(["shared/**/*"]) ,
     )

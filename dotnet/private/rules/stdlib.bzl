@@ -20,19 +20,11 @@ def _stdlib_impl(ctx):
 
     result = dotnet.stdlib_byname(name = name, shared = dotnet.shared, lib = dotnet.lib, libVersion = dotnet.libVersion)
 
-    deps = ctx.attr.deps
-    transitive = depset(direct = deps, transitive = [a[DotnetLibrary].transitive for a in deps])
-    extra = depset(direct = [result], transitive = [t.files for t in ctx.attr.data])
-    direct = extra.to_list()
-
-    runfiles = depset(direct = direct, transitive = [a[DotnetLibrary].runfiles for a in deps])
-
     library = dotnet.new_library(
         dotnet = dotnet,
         name = name,
-        deps = deps,
-        transitive = transitive,
-        runfiles = runfiles,
+        deps = ctx.attr.deps,
+        data = ctx.attr.data,
         result = result,
     )
 
@@ -40,7 +32,7 @@ def _stdlib_impl(ctx):
         library,
         DefaultInfo(
             files = depset([library.result]),
-            runfiles = ctx.runfiles(files = [], transitive_files = runfiles),
+            runfiles = ctx.runfiles(transitive_files = library.runfiles),
         ),
     ]
 

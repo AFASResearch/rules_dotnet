@@ -12,11 +12,21 @@ def _declare_file(dotnet, path = None, ext = None, sibling = None):
         result += ext
     return dotnet.actions.declare_file(result, sibling = sibling)
 
-def new_library(dotnet, name = None, deps = None, transitive = None, result = None, ref_result = None, pdb = None, runfiles = None, version = None, **kwargs):
+def new_library(dotnet, name = None, version = None, deps = None, data = None, result = None, ref_result = None, pdb = None, **kwargs):
+    transitive = depset(direct = deps, transitive = [a[DotnetLibrary].transitive for a in deps])
+    transitive_refs = depset(direct = [ref_result if ref_result else result], transitive = [a[DotnetLibrary].transitive_refs for a in deps])
+    runfiles = depset(
+        direct = [result], 
+        transitive = [a[DotnetLibrary].runfiles for a in deps] + (
+            [t.files for t in data] if data else []
+        )
+    )
+
     return DotnetLibrary(
         name = dotnet.label.name if not name else name,
         label = dotnet.label,
         deps = deps,
+        transitive_refs = transitive_refs,
         transitive = transitive,
         result = result,
         ref_result = ref_result,

@@ -5,25 +5,18 @@ load(
 load(
     "@io_bazel_rules_dotnet//dotnet/private:providers.bzl",
     "DotnetLibrary",
-    "DotnetResource",
     "DotnetResourceList",
 )
 load(
-    "@io_bazel_rules_dotnet//dotnet/private:rules/runfiles.bzl",
-    "CopyRunfiles",
+    "@io_bazel_rules_dotnet//dotnet/private:json.bzl",
+    "write_runtimeconfig",
+    "write_depsjson",
 )
 
 def _binary_impl(ctx):
     """_binary_impl emits actions for compiling executable assembly."""
     dotnet = dotnet_context(ctx)
     name = ctx.label.name
-    subdir = name + "/"
-
-    if dotnet.assembly == None:
-        empty = dotnet.declare_file(dotnet, path = "empty.sh")
-        dotnet.actions.write(output = empty, content = "echo assembly generations is not supported on this platform'")
-        library = dotnet.new_library(dotnet = dotnet)
-        return [library, DefaultInfo(executable = empty)]
 
     executable = dotnet.assembly(
         dotnet,
@@ -40,29 +33,36 @@ def _binary_impl(ctx):
         server = ctx.executable.server,
     )
 
-    launcher = dotnet.declare_file(dotnet, path = subdir + executable.result.basename + "_0.exe")
-    ctx.actions.run(
-        outputs = [launcher],
-        inputs = ctx.attr._launcher.files.to_list(),
-        executable = ctx.attr._copy.files.to_list()[0],
-        arguments = [launcher.path, ctx.attr._launcher.files.to_list()[0].path],
-        mnemonic = "CopyLauncher",
+    # execroot_path is build time scenario
+    # runfiles_path is runtime scenario
+    launcher = dotnet.declare_file(dotnet, path = "launcher.bat")
+    ctx.actions.write(
+        output = launcher,
+        content = r"""@echo off
+IF EXIST "./{execroot_path}" (
+  "./{execroot_path}" "%~dp0{dll}" %*
+) ELSE (
+  "./{runfiles_path}" "%~dp0{dll}" %*
+)
+""".format(execroot_path = dotnet.runner.path, runfiles_path = dotnet.runner.short_path, dll = executable.result.basename)
     )
 
-    if dotnet.runner != None:
-        runner = [dotnet.runner]
-    else:
-        runner = []
+    # DllName.runtimeconfig.json
+    runtimeconfig = write_runtimeconfig(dotnet, executable.result.basename, launcher.path)
+    # DllName.deps.json
+    depsjson = write_depsjson(dotnet, executable.result.basename, executable.transitive)
 
-    #runfiles = ctx.runfiles(files = [launcher] + runner + ctx.attr.native_deps.files.to_list(), transitive_files = executable.runfiles)
-
-    runfiles = ctx.runfiles(files = runner + ctx.attr.native_deps.files.to_list(), transitive_files = executable.runfiles)
-    runfiles = CopyRunfiles(dotnet, runfiles, ctx.attr._copy, ctx.attr._symlink, executable, subdir)
+    runfiles = ctx.runfiles(
+        files = [dotnet.runner, launcher, runtimeconfig, depsjson], 
+        transitive_files = depset(
+            transitive = [executable.runfiles, ctx.attr.native_deps.files]
+        )
+    )
 
     return [
         executable,
         DefaultInfo(
-            files = depset([executable.result, launcher]),
+            files = depset([executable.result, launcher, runtimeconfig, depsjson]),
             runfiles = runfiles,
             executable = launcher,
         ),

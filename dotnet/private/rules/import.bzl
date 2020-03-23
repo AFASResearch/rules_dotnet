@@ -16,22 +16,13 @@ def _import_library_impl(ctx):
     src = ctx.attr.src
     result = src.files.to_list()[0]
 
-    if ctx.attr.data != None:
-        data = depset(direct = [], transitive = [t.files for t in ctx.attr.data])
-    else:
-        data = depset()
-
-    runfiles = depset(direct = [result], transitive = [d[DotnetLibrary].runfiles for d in deps] + [data])
-    transitive = depset(direct = deps, transitive = [a[DotnetLibrary].transitive for a in deps])
-
     library = new_library(
         dotnet = ctx,
         name = name,
-        deps = deps,
-        transitive = transitive,
-        runfiles = runfiles,
-        result = result,
         version = ctx.attr.version,
+        deps = deps,
+        data = ctx.attr.data,
+        result = result,
     )
 
     return [

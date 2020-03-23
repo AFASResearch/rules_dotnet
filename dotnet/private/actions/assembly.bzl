@@ -156,16 +156,11 @@ def emit_assembly(
         ),
     )
 
-    extra = [] if data == None else [d.files for d in data]
-    runfiles = depset(direct = [result] + [dotnet.stdlib] + ([pdb] if pdb else []), transitive = [transitive_runfiles] + extra)
-    transitive = depset(direct = deps, transitive = [transitive])
-
     return dotnet.new_library(
         dotnet = dotnet,
         name = name,
         deps = deps,
-        transitive = transitive,
+        data = data,
         result = result,
         pdb = None,
-        runfiles = runfiles,
     )
