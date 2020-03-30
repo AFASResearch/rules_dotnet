@@ -1,15 +1,18 @@
-﻿namespace Compiler.Server.Multiplex
+﻿using System;
+
+namespace Compiler.Server.Multiplex
 {
     internal static class Logger
     {
         public static void Log(string format, params object[] arguments)
         {
-            // noop
+            var message = string.Format(format, arguments);
+            Console.Error.WriteLine($"|{DateTime.Now:yyyy-dd-MM HH:mm:ss.fff}| {message}");
         }
 
         public static void Log(string message)
         {
-            // noop
+            Console.Error.WriteLine($"|{DateTime.Now:yyyy-dd-MM HH:mm:ss.fff}| {message}");
         }
     }
 }

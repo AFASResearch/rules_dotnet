@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Blaze.Worker;
 using dnlib.DotNet;
 using Google.Protobuf;
+using static Compiler.Server.Multiplex.Logger;
 
 namespace Compiler.Server.Multiplex
 {
@@ -24,15 +25,30 @@ namespace Compiler.Server.Multiplex
             var pipe = GetPipeName(cscDir);
             var commitHash = GetCommitHash(csc);
             var tempDir = Path.GetTempPath();
+            var serverLogFile = Path.GetTempFileName();
 
             var cancelSource = new CancellationTokenSource();
-            var serverProcess = StartServerProcess(dotnet, vbcs, pipe);
-            serverProcess.Exited += (sender, args) => cancelSource.Cancel();
-            serverProcess.Start();
 
-            while (!serverProcess.HasExited)
+            Console.CancelKeyPress += (s, e) =>
+            {
+                Log("Cancel key");
+                cancelSource.Cancel();
+            };
+            
+            Log($"Server logging to: {serverLogFile}");
+
+            var serverProcess = StartServerProcess(dotnet, vbcs, pipe, serverLogFile);
+
+            while (!cancelSource.IsCancellationRequested)
             {
                 var request = WorkRequest.Parser.ParseDelimitedFrom(Console.OpenStandardInput());
+
+                if(serverProcess.HasExited)
+                {
+                    serverProcess = StartServerProcess(dotnet, vbcs, pipe, serverLogFile);
+                }
+                
+                Log($"Received {request.RequestId}");
 
                 Task.Run(async () =>
                 {
@@ -49,23 +65,32 @@ namespace Compiler.Server.Multiplex
                     }
 
                     response.WriteDelimitedTo(Console.OpenStandardOutput());
+                    
+                    Log($"Replied {response.RequestId}");
                 });
             }
+
+            Log("Done");
         }
 
-        private static Process StartServerProcess(string dotnet, string vbcs, string pipe)
+        private static Process StartServerProcess(string dotnet, string vbcs, string pipe, string logFilePath)
         {
             Process serverProcess = new Process();
             var processStartInfo = new ProcessStartInfo(dotnet, $"\"{vbcs}\" -pipename:{pipe}");
             processStartInfo.RedirectStandardOutput = true;
             processStartInfo.RedirectStandardError = true;
+            processStartInfo.Environment["RoslynCommandLineLogFile"] = logFilePath;
             serverProcess.StartInfo = processStartInfo;
             serverProcess.OutputDataReceived += (sender, args) => Console.Error.WriteLine(args.Data);
             serverProcess.ErrorDataReceived += (sender, args) => Console.Error.WriteLine(args.Data);
-            serverProcess.Exited += (sender, args) => 
 
-            AppDomain.CurrentDomain.ProcessExit += (s, e) => serverProcess.Kill();
-            Console.CancelKeyPress += (s, e) => serverProcess.Kill();
+            serverProcess.Exited += (sender, args) =>
+            {
+                Log("VBCS exited");
+            };
+            serverProcess.Start();
+            Log("VBCS Started");
+
             return serverProcess;
         }
 
