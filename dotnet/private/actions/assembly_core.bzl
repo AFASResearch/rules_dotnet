@@ -23,7 +23,7 @@ def _map_dep(d):
 def _map_resource(d):
     return d.result.path + "," + d.identifier
 
-def _make_runner_arglist(dotnet, deps, resources, output, ref_output, pdb, executable, defines, unsafe, keyfile):
+def _make_runner_arglist(dotnet, deps, resources, output, ref_output, debug, pdb, executable, defines, unsafe, keyfile):
     args = dotnet.actions.args()
 
     # /out:<file>
@@ -45,8 +45,17 @@ def _make_runner_arglist(dotnet, deps, resources, output, ref_output, pdb, execu
     args.add("/deterministic+")
 
     if pdb:
-        args.add("-debug:full")
         args.add("-pdb:" + pdb.path)
+
+    if debug:
+        args.add("/debug:full")
+        args.add("/optimize-")
+        args.add("/define:TRACE;DEBUG")
+        args.add("/mov")
+    else:
+        args.add("/debug-")
+        args.add("/optimize+")
+        args.add("/define:TRACE;RELEASE")
 
     args.add_all(dotnet.no_warns, format_each = "/nowarn:%s")
 
@@ -131,7 +140,7 @@ def emit_assembly_core(
         pdb = None
 
     transitive_refs = depset(transitive = [d[DotnetLibrary].transitive_refs for d in deps])
-    runner_args = _make_runner_arglist(dotnet, transitive_refs, resources, result, ref_result, pdb, executable, defines, unsafe, keyfile)
+    runner_args = _make_runner_arglist(dotnet, transitive_refs, resources, result, ref_result, dotnet.debug, pdb, executable, defines, unsafe, keyfile)
 
     all_srcs = depset(transitive = [s.files for s in srcs + dotnet.extra_srcs])
     runner_args.add_all(all_srcs)
