@@ -51,7 +51,6 @@ def _make_runner_arglist(dotnet, deps, resources, output, ref_output, debug, pdb
         args.add("/debug:full")
         args.add("/optimize-")
         args.add("/define:TRACE;DEBUG")
-        args.add("/mov")
     else:
         args.add("/debug-")
         args.add("/optimize+")
