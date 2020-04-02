@@ -23,7 +23,7 @@ def _map_dep(d):
 def _map_resource(d):
     return d.result.path + "," + d.identifier
 
-def _make_runner_arglist(dotnet, deps, resources, output, ref_output, debug, pdb, executable, defines, unsafe, keyfile):
+def _make_runner_arglist(dotnet, deps, analyzers, resources, output, ref_output, debug, pdb, executable, defines, unsafe, keyfile):
     args = dotnet.actions.args()
 
     # /out:<file>
@@ -73,6 +73,8 @@ def _make_runner_arglist(dotnet, deps, resources, output, ref_output, debug, pdb
 
     args.add(dotnet.stdlib, format = "/reference:%s")
 
+    args.add_all(analyzers, format_each = "/analyzer:%s", map_each = _map_dep)
+
     if defines and len(defines) > 0:
         args.add_all(defines, format_each = "/define:%s")
 
@@ -111,6 +113,7 @@ def emit_assembly_core(
         name,
         srcs,
         deps = None,
+        analyzers = None,
         out = None,
         resources = None,
         executable = True,
@@ -138,8 +141,9 @@ def emit_assembly_core(
     else:
         pdb = None
 
+    transitive_analyzers = depset(transitive = [d[DotnetLibrary].transitive_analyzers for d in analyzers])
     transitive_refs = depset(transitive = [d[DotnetLibrary].transitive_refs for d in deps])
-    runner_args = _make_runner_arglist(dotnet, transitive_refs, resources, result, ref_result, dotnet.debug, pdb, executable, defines, unsafe, keyfile)
+    runner_args = _make_runner_arglist(dotnet, transitive_refs, transitive_analyzers, resources, result, ref_result, dotnet.debug, pdb, executable, defines, unsafe, keyfile)
 
     all_srcs = depset(transitive = [s.files for s in srcs + dotnet.extra_srcs])
     runner_args.add_all(all_srcs)

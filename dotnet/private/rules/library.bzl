@@ -24,6 +24,7 @@ def _library_impl(ctx):
         name = name,
         srcs = ctx.attr.srcs,
         deps = ctx.attr.deps,
+        analyzers = ctx.attr.analyzers,
         resources = ctx.attr.resources,
         out = ctx.attr.out,
         defines = ctx.attr.defines,
@@ -65,6 +66,7 @@ core_library = rule(
     _library_impl,
     attrs = {
         "deps": attr.label_list(providers = [DotnetLibrary]),
+        "analyzers": attr.label_list(providers = [DotnetLibrary]),
         "resources": attr.label_list(providers = [DotnetResourceList]),
         "srcs": attr.label_list(allow_files = [".cs"]),
         "out": attr.string(),
@@ -87,6 +89,7 @@ net_library = rule(
     _library_impl,
     attrs = {
         "deps": attr.label_list(providers = [DotnetLibrary]),
+        "analyzers": attr.label_list(providers = [DotnetLibrary]),
         "resources": attr.label_list(providers = [DotnetResourceList]),
         "srcs": attr.label_list(allow_files = [".cs"]),
         "out": attr.string(),
