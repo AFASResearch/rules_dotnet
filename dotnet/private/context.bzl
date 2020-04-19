@@ -12,11 +12,34 @@ def _declare_file(dotnet, path = None, ext = None, sibling = None):
         result += ext
     return dotnet.actions.declare_file(result, sibling = sibling)
 
-def new_library(dotnet, name = None, version = None, deps = None, data = None, result = None, ref_result = None, pdb = None, **kwargs):
+def new_library(
+    dotnet, name = None,
+    version = None,
+    deps = None,
+    data = None,
+    result = None,
+    ref_result = None,
+    pdb = None,
+    libs = None,
+    refs = None,
+    **kwargs
+):
+    if not libs:
+        libs = [result] if result else []
+
+    if not refs:
+        if ref_result:
+            refs = [ref_result]
+        else:
+            refs = libs
+
+    if not all([type(f) == "File" for f in refs]):
+        fail(refs)
+    
     transitive = depset(direct = deps, transitive = [a[DotnetLibrary].transitive for a in deps])
-    transitive_refs = depset(direct = [ref_result if ref_result else result], transitive = [a[DotnetLibrary].transitive_refs for a in deps])
+    transitive_refs = depset(direct = refs, transitive = [a[DotnetLibrary].transitive_refs for a in deps])
     runfiles = depset(
-        direct = [result] + ([pdb] if pdb else []),
+        direct = libs + ([pdb] if pdb else []),
         transitive = [a[DotnetLibrary].runfiles for a in deps] + (
             [t.files for t in data] if data else []
         )
@@ -29,6 +52,7 @@ def new_library(dotnet, name = None, version = None, deps = None, data = None, r
         transitive_refs = transitive_refs,
         transitive = transitive,
         result = result,
+        libs = libs,
         ref_result = ref_result,
         pdb = pdb,
         runfiles = runfiles,
@@ -96,6 +120,7 @@ def dotnet_context(ctx, attr = None):
         debug = ctx.var["COMPILATION_MODE"] == "dbg",
         extra_srcs = context_data._extra_srcs,
         no_warns = context_data._no_warns,
+        host = context_data._host.files,
         _ctx = ctx,
     )
 

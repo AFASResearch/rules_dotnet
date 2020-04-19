@@ -10,27 +10,18 @@ load(
 
 def _import_library_impl(ctx):
     """net_import_library_impl emits actions for importing an external dll (for example provided by nuget)."""
-    name = ctx.label.name
-
-    deps = ctx.attr.deps
-    src = ctx.attr.src
-    result = src.files.to_list()[0]
-
     library = new_library(
         dotnet = ctx,
-        name = name,
+        name = ctx.label.name,
         version = ctx.attr.version,
-        deps = deps,
+        deps = ctx.attr.deps,
         data = ctx.attr.data,
-        result = result,
+        libs = ctx.files.libs if ctx.files.libs else ctx.files.src,
+        refs = ctx.files.refs,
     )
 
     return [
         library,
-        DefaultInfo(
-            files = depset([library.result]),
-            runfiles = ctx.runfiles(files = [], transitive_files = library.runfiles),
-        ),
     ]
 
 dotnet_import_library = rule(
@@ -59,7 +50,9 @@ core_import_library = rule(
     _import_library_impl,
     attrs = {
         "deps": attr.label_list(providers = [DotnetLibrary]),
-        "src": attr.label(allow_files = [".dll", ".exe"], mandatory = True),
+        "src": attr.label(allow_files = [".dll", ".exe"]),
+        "libs": attr.label_list(allow_files = [".dll", ".exe"]),
+        "refs": attr.label_list(allow_files = [".dll", ".exe"]),
         "data": attr.label_list(allow_files = True),
         "version": attr.string(),
     },
