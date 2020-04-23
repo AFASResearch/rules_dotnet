@@ -55,7 +55,7 @@ IF EXIST "./{execroot_path}" (
     runfiles = ctx.runfiles(
         files = [dotnet.runner, launcher, runtimeconfig, depsjson], 
         transitive_files = depset(
-            transitive = [executable.runfiles, ctx.attr.native_deps.files]
+            transitive = [executable.runfiles, dotnet.host]
         )
     )
 
