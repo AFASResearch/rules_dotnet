@@ -12,6 +12,11 @@ load(
     "write_runtimeconfig",
     "write_depsjson",
 )
+load(
+    "@io_bazel_rules_dotnet//dotnet/private:runfiles.bzl",
+    "to_manifest_path",
+    "BATCH_RLOCATION_FUNCTION",
+)
 
 def _binary_impl(ctx):
     """_binary_impl emits actions for compiling executable assembly."""
@@ -39,13 +44,19 @@ def _binary_impl(ctx):
     ctx.actions.write(
         output = launcher,
         content = r"""@echo off
-IF EXIST "./{execroot_path}" (
-  "./{execroot_path}" "%~dp0{dll}" %*
-) ELSE (
-  "./{runfiles_path}" "%~dp0{dll}" %*
-)
-""".format(execroot_path = dotnet.runner.path, runfiles_path = dotnet.runner.short_path, dll = executable.result.basename)
-    )
+SETLOCAL ENABLEEXTENSIONS
+SETLOCAL ENABLEDELAYEDEXPANSION
+set RUNFILES_MANIFEST_ONLY=1
+REM we do not trust an already set MANIFEST_FILE because this may be a calling program
+set RUNFILES_MANIFEST_FILE=""
+{rlocation_function}
+call :rlocation "{dotnet_path}" DOTNET_RUNNER
+
+"%DOTNET_RUNNER%" "%~dp0{dll}" %*
+""".format(
+    dotnet_path = to_manifest_path(ctx, dotnet.runner),
+    rlocation_function = BATCH_RLOCATION_FUNCTION,
+    dll = executable.result.basename))
 
     # DllName.runtimeconfig.json
     runtimeconfig = write_runtimeconfig(dotnet, executable.result.basename, launcher.path)
@@ -81,9 +92,6 @@ dotnet_binary = rule(
         "keyfile": attr.label(allow_files = True),
         "dotnet_context_data": attr.label(default = Label("@io_bazel_rules_dotnet//:dotnet_context_data")),
         "native_deps": attr.label(default = Label("@dotnet_sdk//:native_deps")),
-        "_launcher": attr.label(default = Label("//dotnet/tools/launcher_mono:launcher_mono.exe")),
-        "_copy": attr.label(default = Label("//dotnet/tools/copy")),
-        "_symlink": attr.label(default = Label("//dotnet/tools/symlink")),
     },
     toolchains = ["@io_bazel_rules_dotnet//dotnet:toolchain"],
     executable = True,
@@ -107,9 +115,6 @@ core_binary = rule(
             cfg = "host",
         ),
         "native_deps": attr.label(default = Label("@core_sdk//:native_deps")),
-        "_launcher": attr.label(default = Label("//dotnet/tools/launcher_core:launcher_core.exe")),
-        "_copy": attr.label(default = Label("//dotnet/tools/copy")),
-        "_symlink": attr.label(default = Label("//dotnet/tools/symlink")),
     },
     toolchains = ["@io_bazel_rules_dotnet//dotnet:toolchain_core"],
     executable = True,
@@ -133,9 +138,6 @@ core_binary_no_server = rule(
             cfg = "host",
         ),
         "native_deps": attr.label(default = Label("@core_sdk//:native_deps")),
-        "_launcher": attr.label(default = Label("//dotnet/tools/launcher_core:launcher_core.exe")),
-        "_copy": attr.label(default = Label("//dotnet/tools/copy")),
-        "_symlink": attr.label(default = Label("//dotnet/tools/symlink")),
     },
     toolchains = ["@io_bazel_rules_dotnet//dotnet:toolchain_core"],
     executable = True,
@@ -154,9 +156,6 @@ net_binary = rule(
         "keyfile": attr.label(allow_files = True),
         "dotnet_context_data": attr.label(default = Label("@io_bazel_rules_dotnet//:net_context_data")),
         "native_deps": attr.label(default = Label("@net_sdk//:native_deps")),
-        "_launcher": attr.label(default = Label("//dotnet/tools/launcher_net:launcher_net.exe")),
-        "_copy": attr.label(default = Label("//dotnet/tools/copy")),
-        "_symlink": attr.label(default = Label("//dotnet/tools/symlink")),
     },
     toolchains = ["@io_bazel_rules_dotnet//dotnet:toolchain_net"],
     executable = True,
