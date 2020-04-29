@@ -47,6 +47,8 @@ def _binary_impl(ctx):
 SETLOCAL ENABLEEXTENSIONS
 SETLOCAL ENABLEDELAYEDEXPANSION
 set RUNFILES_MANIFEST_ONLY=1
+REM we do not trust an already set MANIFEST_FILE because this may be a calling program
+set RUNFILES_MANIFEST_FILE=""
 {rlocation_function}
 call :rlocation "{dotnet_path}" DOTNET_RUNNER
 
