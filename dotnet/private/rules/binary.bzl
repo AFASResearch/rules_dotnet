@@ -12,6 +12,11 @@ load(
     "write_runtimeconfig",
     "write_depsjson",
 )
+load(
+    "@io_bazel_rules_dotnet//dotnet/private:runfiles.bzl",
+    "to_manifest_path",
+    "BATCH_RLOCATION_FUNCTION",
+)
 
 def _binary_impl(ctx):
     """_binary_impl emits actions for compiling executable assembly."""
@@ -39,13 +44,17 @@ def _binary_impl(ctx):
     ctx.actions.write(
         output = launcher,
         content = r"""@echo off
-IF EXIST "./{execroot_path}" (
-  "./{execroot_path}" "%~dp0{dll}" %*
-) ELSE (
-  "./{runfiles_path}" "%~dp0{dll}" %*
-)
-""".format(execroot_path = dotnet.runner.path, runfiles_path = dotnet.runner.short_path, dll = executable.result.basename)
-    )
+SETLOCAL ENABLEEXTENSIONS
+SETLOCAL ENABLEDELAYEDEXPANSION
+set RUNFILES_MANIFEST_ONLY=1
+{rlocation_function}
+call :rlocation "{dotnet_path}" DOTNET_RUNNER
+
+"%DOTNET_RUNNER%" "%~dp0{dll}" %*
+""".format(
+    dotnet_path = to_manifest_path(ctx, dotnet.runner),
+    rlocation_function = BATCH_RLOCATION_FUNCTION,
+    dll = executable.result.basename))
 
     # DllName.runtimeconfig.json
     runtimeconfig = write_runtimeconfig(dotnet, executable.result.basename, launcher.path)
