@@ -123,6 +123,7 @@ def dotnet_context(ctx, attr = None):
         debug = ctx.var["COMPILATION_MODE"] == "dbg",
         extra_srcs = context_data._extra_srcs,
         no_warns = context_data._no_warns,
+        analyzer_ruleset = context_data._analyzer_ruleset,
         host = context_data._host.files,
         _ctx = ctx,
     )
@@ -139,6 +140,7 @@ def _dotnet_context_data(ctx):
         _toolchain_type = ctx.attr._toolchain_type,
         _extra_srcs = ctx.attr.extra_srcs,
         _no_warns = ctx.attr.no_warns,
+        _analyzer_ruleset = ctx.file.analyzer_ruleset,
         _framework = ctx.attr.framework,
     )
 
@@ -230,6 +232,10 @@ core_context_data = rule(
         ),
         "no_warns": attr.string_list(
             default = [],
+        ),
+        "analyzer_ruleset": attr.label(
+            default = None,
+            allow_single_file = True,
         ),
     },
 )

@@ -18,6 +18,7 @@ def _import_library_impl(ctx):
         data = ctx.attr.data,
         libs = ctx.files.libs if ctx.files.libs else ctx.files.src,
         refs = ctx.files.refs,
+        analyzers = ctx.files.analyzers,
     )
 
     return [
@@ -53,6 +54,7 @@ core_import_library = rule(
         "src": attr.label(allow_files = [".dll", ".exe"]),
         "libs": attr.label_list(allow_files = [".dll", ".exe"]),
         "refs": attr.label_list(allow_files = [".dll", ".exe"]),
+        "analyzers": attr.label_list(allow_files = [".dll"]),
         "data": attr.label_list(allow_files = True),
         "version": attr.string(),
     },
