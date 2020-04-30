@@ -75,6 +75,8 @@ def _make_runner_arglist(dotnet, deps, transitive_analyzers, resources, output, 
     if dotnet.analyzer_ruleset:
         args.add(dotnet.analyzer_ruleset, format = "/ruleset:%s")
 
+    args.add_all(dotnet.analyzer_additionalfiles, format_each = "/additionalfile:%s")
+
     args.add(dotnet.stdlib, format = "/reference:%s")
 
     if defines and len(defines) > 0:
