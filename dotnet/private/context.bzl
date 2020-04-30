@@ -22,6 +22,7 @@ def new_library(
     pdb = None,
     libs = None,
     refs = None,
+    analyzers = None,
     **kwargs
 ):
     if not libs:
@@ -38,6 +39,7 @@ def new_library(
     
     transitive = depset(direct = deps, transitive = [a[DotnetLibrary].transitive for a in deps])
     transitive_refs = depset(direct = refs, transitive = [a[DotnetLibrary].transitive_refs for a in deps])
+    transitive_analyzers = depset(direct = analyzers, transitive = [a[DotnetLibrary].transitive_analyzers for a in deps])
     runfiles = depset(
         direct = libs + ([pdb] if pdb else []),
         transitive = [a[DotnetLibrary].runfiles for a in deps] + (
@@ -50,6 +52,7 @@ def new_library(
         label = dotnet.label,
         deps = deps,
         transitive_refs = transitive_refs,
+        transitive_analyzers = transitive_analyzers,
         transitive = transitive,
         result = result,
         libs = libs,
