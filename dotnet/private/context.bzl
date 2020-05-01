@@ -22,6 +22,7 @@ def new_library(
     pdb = None,
     libs = None,
     refs = None,
+    analyzers = None,
     **kwargs
 ):
     if not libs:
@@ -38,6 +39,7 @@ def new_library(
     
     transitive = depset(direct = deps, transitive = [a[DotnetLibrary].transitive for a in deps])
     transitive_refs = depset(direct = refs, transitive = [a[DotnetLibrary].transitive_refs for a in deps])
+    transitive_analyzers = depset(direct = analyzers, transitive = [a[DotnetLibrary].transitive_analyzers for a in deps])
     runfiles = depset(
         direct = libs + ([pdb] if pdb else []),
         transitive = [a[DotnetLibrary].runfiles for a in deps] + (
@@ -50,6 +52,7 @@ def new_library(
         label = dotnet.label,
         deps = deps,
         transitive_refs = transitive_refs,
+        transitive_analyzers = transitive_analyzers,
         transitive = transitive,
         result = result,
         libs = libs,
@@ -120,6 +123,10 @@ def dotnet_context(ctx, attr = None):
         debug = ctx.var["COMPILATION_MODE"] == "dbg",
         extra_srcs = context_data._extra_srcs,
         no_warns = context_data._no_warns,
+        analyzer_ruleset = context_data._analyzer_ruleset,
+        analyzer_config = context_data._analyzer_config,
+        analyzer_additionalfiles = context_data._analyzer_additionalfiles,
+        warn_as_error = context_data._warn_as_error,
         host = context_data._host.files,
         _ctx = ctx,
     )
@@ -136,6 +143,10 @@ def _dotnet_context_data(ctx):
         _toolchain_type = ctx.attr._toolchain_type,
         _extra_srcs = ctx.attr.extra_srcs,
         _no_warns = ctx.attr.no_warns,
+        _analyzer_ruleset = ctx.file.analyzer_ruleset,
+        _analyzer_config = ctx.file.analyzer_config,
+        _analyzer_additionalfiles = ctx.files.analyzer_additionalfiles,
+        _warn_as_error = ctx.attr.warn_as_error,
         _framework = ctx.attr.framework,
     )
 
@@ -227,7 +238,22 @@ core_context_data = rule(
         ),
         "no_warns": attr.string_list(
             default = [],
+        ),     
+        "analyzer_ruleset": attr.label(
+            default = None,
+            allow_single_file = True,
         ),
+        "analyzer_config": attr.label(
+            default = None,
+            allow_single_file = True,
+        ),        
+        "warn_as_error": attr.bool(
+            default = False,
+        ),        
+        "analyzer_additionalfiles": attr.label_list(
+            default = [],
+            allow_files = True,
+        ),        
     },
 )
 
