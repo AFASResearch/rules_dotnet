@@ -65,7 +65,6 @@ core_library = rule(
     _library_impl,
     attrs = {
         "deps": attr.label_list(providers = [DotnetLibrary]),
-        "analyzers": attr.label_list(providers = [DotnetLibrary]),
         "resources": attr.label_list(providers = [DotnetResourceList]),
         "srcs": attr.label_list(allow_files = [".cs"]),
         "out": attr.string(),
@@ -88,7 +87,6 @@ net_library = rule(
     _library_impl,
     attrs = {
         "deps": attr.label_list(providers = [DotnetLibrary]),
-        "analyzers": attr.label_list(providers = [DotnetLibrary]),
         "resources": attr.label_list(providers = [DotnetResourceList]),
         "srcs": attr.label_list(allow_files = [".cs"]),
         "out": attr.string(),

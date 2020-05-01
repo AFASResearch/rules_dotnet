@@ -67,8 +67,7 @@ def _make_runner_arglist(dotnet, deps, transitive_analyzers, resources, output, 
         args.add_all(transitive_analyzers, format_each = "/analyzer:%s", map_each = _map_dep)
         args.add(dotnet.analyzer_ruleset, format = "/ruleset:%s")
         args.add(dotnet.analyzer_config, format = "/analyzerconfig:%s")
-
-    args.add_all(dotnet.analyzer_additionalfiles, format_each = "/additionalfile:%s")
+        args.add_all(dotnet.analyzer_additionalfiles, format_each = "/additionalfile:%s")
 
     args.add(dotnet.stdlib, format = "/reference:%s")
 
