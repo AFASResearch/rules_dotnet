@@ -124,7 +124,9 @@ def dotnet_context(ctx, attr = None):
         extra_srcs = context_data._extra_srcs,
         no_warns = context_data._no_warns,
         analyzer_ruleset = context_data._analyzer_ruleset,
+        analyzer_config = context_data._analyzer_config,
         analyzer_additionalfiles = context_data._analyzer_additionalfiles,
+        warn_as_error = context_data._warn_as_error,
         host = context_data._host.files,
         _ctx = ctx,
     )
@@ -142,7 +144,9 @@ def _dotnet_context_data(ctx):
         _extra_srcs = ctx.attr.extra_srcs,
         _no_warns = ctx.attr.no_warns,
         _analyzer_ruleset = ctx.file.analyzer_ruleset,
+        _analyzer_config = ctx.file.analyzer_config,
         _analyzer_additionalfiles = ctx.files.analyzer_additionalfiles,
+        _warn_as_error = ctx.attr.warn_as_error,
         _framework = ctx.attr.framework,
     )
 
@@ -234,11 +238,18 @@ core_context_data = rule(
         ),
         "no_warns": attr.string_list(
             default = [],
-        ),
+        ),     
         "analyzer_ruleset": attr.label(
             default = None,
             allow_single_file = True,
         ),
+        "analyzer_config": attr.label(
+            default = None,
+            allow_single_file = True,
+        ),        
+        "warn_as_error": attr.bool(
+            default = False,
+        ),        
         "analyzer_additionalfiles": attr.label_list(
             default = [],
             allow_files = True,
