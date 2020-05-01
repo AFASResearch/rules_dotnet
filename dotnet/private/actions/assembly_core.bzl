@@ -57,29 +57,16 @@ def _make_runner_arglist(dotnet, deps, transitive_analyzers, resources, output, 
         args.add("/define:TRACE;RELEASE")
 
     args.add_all(dotnet.no_warns, format_each = "/nowarn:%s")
-
-    # /warn
-    #args.add(format="/warn:%s", value=str(ctx.attr.warn))
-
-    # /modulename:<string> only used for modules
-    #libdirs = _get_libdirs(depinfo.dlls)
-    #libdirs = _get_libdirs(depinfo.transitive_dlls, libdirs)
-
-    # /lib:dir1,[dir1]
-    #if libdirs:
-    #  args.add(format="/lib:%s", value=libdirs)
+    
+    if dotnet.warn_as_error:
+        args.add("/warnaserror")
 
     args.add_all(deps, format_each = "/reference:%s", map_each = _map_dep)
 
     if dotnet.analyzer_ruleset:
         args.add_all(transitive_analyzers, format_each = "/analyzer:%s", map_each = _map_dep)
         args.add(dotnet.analyzer_ruleset, format = "/ruleset:%s")
-
-    if dotnet.analyzer_config:
         args.add(dotnet.analyzer_config, format = "/analyzerconfig:%s")
-
-    if dotnet.warn_as_error:
-        args.add("/warnaserror")
 
     args.add_all(dotnet.analyzer_additionalfiles, format_each = "/additionalfile:%s")
 
