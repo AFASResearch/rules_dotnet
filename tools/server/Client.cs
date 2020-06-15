@@ -36,7 +36,8 @@ namespace Compiler.Server.Multiplex
 
             var cscParamsFile = request.Arguments[0];
             var root = Path.GetDirectoryName(Directory.GetCurrentDirectory());
-            var args = new List<string> { "/noconfig", $@"/pathmap:{root}=A:/", $"@{Path.GetFullPath(cscParamsFile)}" };
+            var external = Path.Combine(Directory.GetCurrentDirectory(), "external");
+            var args = new List<string> { "/noconfig", $@"/pathmap:{external}=A:/,{root}=A:/", $"@{Path.GetFullPath(cscParamsFile)}" };
 
             var buildRequest = BuildRequest.Create(RequestLanguage.CSharpCompile, Directory.GetCurrentDirectory(), _tempDir, _commitHash, args);
 
