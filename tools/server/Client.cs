@@ -35,7 +35,8 @@ namespace Compiler.Server.Multiplex
             await pipeClient.ConnectAsync(_connectTimeout, cancellationToken).ConfigureAwait(false);
 
             var cscParamsFile = request.Arguments[0];
-            var args = new List<string> { "/noconfig", $"@{Path.GetFullPath(cscParamsFile)}" };
+            var root = Path.GetDirectoryName(Directory.GetCurrentDirectory());
+            var args = new List<string> { "/noconfig", $@"/pathmap:{root}=A:/", $"@{Path.GetFullPath(cscParamsFile)}" };
 
             var buildRequest = BuildRequest.Create(RequestLanguage.CSharpCompile, Directory.GetCurrentDirectory(), _tempDir, _commitHash, args);
 
