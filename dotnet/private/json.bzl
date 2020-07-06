@@ -20,11 +20,13 @@ def _quote(s):
 
 def write_runtimeconfig(dotnet_ctx, dll_name, launcher_path):
     runtimeconfig = dotnet_ctx.declare_file(dotnet_ctx, path = _assembly_name(dll_name) + ".runtimeconfig.json")
+    launcher_name = paths.basename(launcher_path)
     dotnet_ctx.actions.write(runtimeconfig, r"""
 {
   "runtimeOptions": {
     "additionalProbingPaths": [
       "./"""+ launcher_path + r""".runfiles/""" + dotnet_ctx.workspace_name + r"""/",
+      "./"""+ launcher_name + r""".runfiles/""" + dotnet_ctx.workspace_name + r"""/",
       "./"
     ],
     "tfm": "netcoreapp3.1",
