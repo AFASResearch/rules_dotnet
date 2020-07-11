@@ -163,11 +163,15 @@ def emit_assembly_core(
         # dll to analyze
         worker_args.add(result.path)
 
+        server_args = [dotnet.runner.path, dotnet.mcs.path]
+        if dotnet.execroot_pathmap:
+            server_args.append(dotnet.execroot_pathmap)
+
         dotnet.actions.run(
             inputs = depset(direct = [paramfile] + resource_files, transitive = [all_srcs, transitive_refs]),
             outputs = [result, ref_result, unused_refs] + ([pdb] if pdb else []),
             executable = server,
-            arguments = [dotnet.runner.path, dotnet.mcs.path, worker_args],
+            arguments = server_args + [worker_args],
             mnemonic = "CoreCompile",
             execution_requirements = { "supports-multiplex-workers": "1" },
             tools = [server],

@@ -128,6 +128,7 @@ def dotnet_context(ctx, attr = None):
         analyzer_additionalfiles = context_data._analyzer_additionalfiles,
         warn_as_error = context_data._warn_as_error,
         host = context_data._host.files,
+        execroot_pathmap = context_data._execroot_pathmap,
         _ctx = ctx,
     )
 
@@ -148,6 +149,7 @@ def _dotnet_context_data(ctx):
         _analyzer_additionalfiles = ctx.files.analyzer_additionalfiles,
         _warn_as_error = ctx.attr.warn_as_error,
         _framework = ctx.attr.framework,
+        _execroot_pathmap = ctx.attr.execroot_pathmap,
     )
 
 dotnet_context_data = rule(
@@ -253,6 +255,9 @@ core_context_data = rule(
         "analyzer_additionalfiles": attr.label_list(
             default = [],
             allow_files = True,
+        ),        
+        "execroot_pathmap": attr.string(
+            default = "",
         ),        
     },
 )

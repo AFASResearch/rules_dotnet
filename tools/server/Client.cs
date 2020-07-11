@@ -15,14 +15,16 @@ namespace Compiler.Server.Multiplex
         private readonly string _pipe;
         private readonly string _tempDir;
         private readonly string _commitHash;
+        private readonly string _pathmap;
 
         private static readonly int _connectTimeout = 5000;
 
-        public Client(string pipe, string tempDir, string commitHash)
+        public Client(string pipe, string tempDir, string commitHash, string pathmap = null)
         {
             _pipe = pipe;
             _tempDir = tempDir;
             _commitHash = commitHash;
+            _pathmap = pathmap;
         }
 
         public async Task<WorkResponse> Work(WorkRequest request, CancellationToken cancellationToken)
@@ -37,7 +39,12 @@ namespace Compiler.Server.Multiplex
             var cscParamsFile = request.Arguments[0];
             var root = Path.GetDirectoryName(Directory.GetCurrentDirectory());
             var external = Path.Combine(Directory.GetCurrentDirectory(), "external");
-            var args = new List<string> { "/noconfig", $@"/pathmap:{external}=A:/,{root}=A:/", $"@{Path.GetFullPath(cscParamsFile)}" };
+            var args = new List<string> { "/noconfig", $"@{Path.GetFullPath(cscParamsFile)}" };
+
+            if(_pathmap != null)
+            {
+                args.Add($@"/pathmap:{external}={_pathmap},{root}={_pathmap}");
+            }
 
             var buildRequest = BuildRequest.Create(RequestLanguage.CSharpCompile, Directory.GetCurrentDirectory(), _tempDir, _commitHash, args);
 
@@ -60,11 +67,18 @@ namespace Compiler.Server.Multiplex
 
             if (buildResponseTask.Result is CompletedBuildResponse completedBuildResponse)
             {
+                var output = completedBuildResponse.Output;
+
+                if(_pathmap != null)
+                {
+                    output = output.Replace(external, _pathmap).Replace(root, _pathmap);
+                }
+
                 return new WorkResponse
                 {
                     ExitCode = completedBuildResponse.ReturnCode,
                     RequestId = request.RequestId,
-                    Output = completedBuildResponse.Output
+                    Output = output
                 };
             }
 

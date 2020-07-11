@@ -18,9 +18,10 @@ namespace Compiler.Server.Multiplex
     {
         public static void Main(string[] args)
         {
-            var dotnet = args[0];
+            var dotnet = args[0]; // dotnet.exe
             var cscDir = Path.GetDirectoryName(args[1]);
-            var csc = args[1];
+            var csc = args[1]; // csc.dll
+            var pathmap = args.Length > 2 ? Path.GetFullPath(args[2]) : null; // substitute the execroot with a stable or user defined path
             var vbcs = $@"{cscDir}\VBCSCompiler.dll";
             var pipe = GetPipeName(cscDir);
             var commitHash = GetCommitHash(csc);
@@ -52,7 +53,7 @@ namespace Compiler.Server.Multiplex
 
                 Task.Run(async () =>
                 {
-                    var client = new Client(pipe, tempDir, commitHash);
+                    var client = new Client(pipe, tempDir, commitHash, pathmap);
                     var response = await client.Work(request, cancelSource.Token).ConfigureAwait(false);
                     
                     if (response.ExitCode == 0 && request.Arguments.Count >= 3)
