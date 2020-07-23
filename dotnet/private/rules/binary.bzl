@@ -52,7 +52,7 @@ set RUNFILES_MANIFEST_FILE=""
 {rlocation_function}
 call :rlocation "{dotnet_path}" DOTNET_RUNNER
 
-"%DOTNET_RUNNER%" "%~dp0{dll}" %*
+"%DOTNET_RUNNER%" "\\?\%~dp0{dll}" %*
 """.format(
     dotnet_path = to_manifest_path(ctx, dotnet.runner),
     rlocation_function = BATCH_RLOCATION_FUNCTION,
