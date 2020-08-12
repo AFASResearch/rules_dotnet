@@ -18,6 +18,45 @@ load(
     "BATCH_RLOCATION_FUNCTION",
 )
 
+# DotnetContext, DotnetLibrary
+def create_launcher(dotnet, library):
+    launcher = dotnet.declare_file(dotnet, path = "launcher.bat", sibling = library.result)
+    dotnet.actions.write(
+        output = launcher,
+        content = r"""@echo off
+SETLOCAL ENABLEEXTENSIONS
+SETLOCAL ENABLEDELAYEDEXPANSION
+set RUNFILES_MANIFEST_ONLY=1
+REM we do not trust an already set MANIFEST_FILE because this may be a calling program
+set RUNFILES_MANIFEST_FILE=""
+{rlocation_function}
+call :rlocation "{dotnet_path}" DOTNET_RUNNER
+
+"%DOTNET_RUNNER%" "\\?\%~dp0{dll}" %*
+""".format(
+    dotnet_path = to_manifest_path(dotnet, dotnet.runner),
+    rlocation_function = BATCH_RLOCATION_FUNCTION,
+    dll = library.result.basename,
+    workspace_name = dotnet.workspace_name))
+
+    # DllName.runtimeconfig.json
+    runtimeconfig = write_runtimeconfig(dotnet, library.result, launcher.path)
+    # DllName.deps.json
+    depsjson = write_depsjson(dotnet, library)
+
+    runfiles = dotnet._ctx.runfiles(
+        files = [dotnet.runner, launcher, runtimeconfig, depsjson], 
+        transitive_files = depset(
+            transitive = [library.runfiles, dotnet.host]
+        )
+    )
+
+    return DefaultInfo(
+        files = depset([library.result, launcher, runtimeconfig, depsjson]),
+        runfiles = runfiles,
+        executable = launcher,
+    )
+
 def _binary_impl(ctx):
     """_binary_impl emits actions for compiling executable assembly."""
     dotnet = dotnet_context(ctx)
@@ -38,45 +77,9 @@ def _binary_impl(ctx):
         server = ctx.executable.server,
     )
 
-    # execroot_path is build time scenario
-    # runfiles_path is runtime scenario
-    launcher = dotnet.declare_file(dotnet, path = "launcher.bat")
-    ctx.actions.write(
-        output = launcher,
-        content = r"""@echo off
-SETLOCAL ENABLEEXTENSIONS
-SETLOCAL ENABLEDELAYEDEXPANSION
-set RUNFILES_MANIFEST_ONLY=1
-REM we do not trust an already set MANIFEST_FILE because this may be a calling program
-set RUNFILES_MANIFEST_FILE=""
-{rlocation_function}
-call :rlocation "{dotnet_path}" DOTNET_RUNNER
-
-"%DOTNET_RUNNER%" "\\?\%~dp0{dll}" %*
-""".format(
-    dotnet_path = to_manifest_path(ctx, dotnet.runner),
-    rlocation_function = BATCH_RLOCATION_FUNCTION,
-    dll = executable.result.basename))
-
-    # DllName.runtimeconfig.json
-    runtimeconfig = write_runtimeconfig(dotnet, executable.result.basename, launcher.path)
-    # DllName.deps.json
-    depsjson = write_depsjson(dotnet, executable.result.basename, executable.transitive)
-
-    runfiles = ctx.runfiles(
-        files = [dotnet.runner, launcher, runtimeconfig, depsjson], 
-        transitive_files = depset(
-            transitive = [executable.runfiles, dotnet.host]
-        )
-    )
-
     return [
         executable,
-        DefaultInfo(
-            files = depset([executable.result, launcher, runtimeconfig, depsjson]),
-            runfiles = runfiles,
-            executable = launcher,
-        ),
+        create_launcher(dotnet, executable),
     ]
 
 dotnet_binary = rule(

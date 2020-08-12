@@ -7,6 +7,10 @@ load(
     "@io_bazel_rules_dotnet//dotnet/private:providers.bzl",
     "DotnetLibrary",
 )
+load(
+    "@io_bazel_rules_dotnet//dotnet/private:rules/binary.bzl",
+    "create_launcher",
+)
 
 def _import_library_impl(ctx):
     """net_import_library_impl emits actions for importing an external dll (for example provided by nuget)."""
@@ -16,13 +20,23 @@ def _import_library_impl(ctx):
         version = ctx.attr.version,
         deps = ctx.attr.deps,
         data = ctx.attr.data,
-        libs = ctx.files.src if ctx.files.src else ctx.files.libs,
+        result = ctx.file.src if hasattr(ctx.file, "src") else None,
+        libs = ctx.files.libs if ctx.files.libs else ctx.files.src,
         refs = ctx.files.src if ctx.files.src else ctx.files.refs,
         analyzers = ctx.files.analyzers,
     )
 
     return [
         library,
+    ]
+
+def _import_binary_impl(ctx):
+    library = _import_library_impl(ctx)[0]
+    dotnet = dotnet_context(ctx)
+    
+    return [
+        library,
+        create_launcher(dotnet, library)
     ]
 
 dotnet_import_library = rule(
@@ -62,14 +76,18 @@ core_import_library = rule(
 )
 
 core_import_binary = rule(
-    _import_library_impl,
+    _import_binary_impl,
     attrs = {
         "deps": attr.label_list(providers = [DotnetLibrary]),
-        "src": attr.label(allow_files = [".dll", ".exe"], mandatory = True),
+        "src": attr.label(allow_single_file = [".dll", ".exe"], mandatory = True),
+        "libs": attr.label_list(allow_files = [".dll", ".exe"]),
         "data": attr.label_list(allow_files = True),
+        "analyzers": attr.label_list(allow_files = [".dll"]),
         "version": attr.string(),
+        "dotnet_context_data": attr.label(default = Label("@io_bazel_rules_dotnet//:core_context_data")),
     },
-    executable = False,
+    toolchains = ["@io_bazel_rules_dotnet//dotnet:toolchain_core"],
+    executable = True,
 )
 
 net_import_library = rule(

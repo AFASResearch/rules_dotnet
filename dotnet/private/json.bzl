@@ -18,8 +18,8 @@ def _assembly_name(name):
 def _quote(s):
     return "\"" + s + "\""
 
-def write_runtimeconfig(dotnet_ctx, dll_name, launcher_path):
-    runtimeconfig = dotnet_ctx.declare_file(dotnet_ctx, path = _assembly_name(dll_name) + ".runtimeconfig.json")
+def write_runtimeconfig(dotnet_ctx, dll_file, launcher_path):
+    runtimeconfig = dotnet_ctx.declare_file(dotnet_ctx, path = _assembly_name(dll_file.basename) + ".runtimeconfig.json", sibling = dll_file)
     launcher_name = paths.basename(launcher_path)
     dotnet_ctx.actions.write(runtimeconfig, r"""
 {
@@ -81,18 +81,18 @@ def _targets(libs):
 {entries}
     {c}""".format(entries = _target_entries(libs), o = "{", c = "}")
 
-def write_depsjson(dotnet_ctx, dll_name, transitive):
+def write_depsjson(dotnet_ctx, library):
+    # transitive including self
+    trans = [library] + [l[DotnetLibrary] for l in library.transitive.to_list()]
+
     dep_files = [
         (
-          d[DotnetLibrary].version + ".0" if d[DotnetLibrary].version else "1.0.0.0", 
-          _assembly_name(d[DotnetLibrary].libs[0].basename),
-          paths.dirname(d[DotnetLibrary].libs[0].short_path),
-          d[DotnetLibrary].libs,
-        ) for d in transitive.to_list() if d[DotnetLibrary].libs
+          l.version + ".0" if l.version else "1.0.0.0", 
+          _assembly_name(l.libs[0].basename),
+          paths.dirname(l.libs[0].short_path),
+          l.libs,
+        ) for l in trans if l.libs
     ]
-    #  + [
-    #     ("1.0.0.0", f) for f in ctx.attr.native_deps.files.to_list()
-    # ]
 
     libs = _libs(dep_files)
     targets = _targets(dep_files)
@@ -109,6 +109,6 @@ def write_depsjson(dotnet_ctx, dll_name, transitive):
 }
 """
 
-    depsjson = dotnet_ctx.declare_file(dotnet_ctx, path = _assembly_name(dll_name) + ".deps.json")
+    depsjson = dotnet_ctx.declare_file(dotnet_ctx, path = _assembly_name(library.result.basename) + ".deps.json", sibling = library.result)
     dotnet_ctx.actions.write(depsjson, json)
     return depsjson
