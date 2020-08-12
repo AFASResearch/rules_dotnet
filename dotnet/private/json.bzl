@@ -52,18 +52,29 @@ def _libs(libs):
 {entries}
   {c}""".format(entries = _lib_entries(libs), o = "{", c = "}")
 
-def _target_entry_files(files, v):
-  return ",\n".join([r"""          "{name}": {o}
-            "assemblyVersion": "{v}",
-            "fileVersion": "1.0.0.0"
-          {c}""".format(name = f.basename, v = v, o = "{", c = "}") for f in files])
+def _runtime_entry_files(files, v):
+  return ", ".join([r""""{name}": {obj}""".format(name = f.basename, obj = struct(
+            assemblyVersion = v,
+            fileVersion = "1.0.0.0"
+          ).to_json()) for f in files if f.path.find("/runtimes/") == -1])
+
+def _rid(path):
+  segments = path.split('/')
+  return segments[segments.index("runtimes") + 1]
+
+def _runtime_target_entry_files(files, v):
+  return ", ".join([r""""{name}": {obj}""".format(name = f.basename, obj = struct(
+            rid = _rid(f.path),
+            assetType = "native" if f.path.find("/lib/") == -1 else "runtime",
+            assemblyVersion = v,
+            fileVersion = "1.0.0.0"
+          ).to_json()) for f in files if f.path.find("/runtimes/") != -1])
 
 def _target_entries(libs):
   return ",\n".join([r"""      "{name}": {o}
-        "runtime": {o}
-{files}
-        {c}
-      {c}""".format(name = name, files = _target_entry_files(files, v), o = "{", c = "}") for (v, name, _, files) in libs])
+        "runtime": {o} {files} {c},
+        "runtimeTargets": {o} {target_files} {c}
+      {c}""".format(name = name, files = _runtime_entry_files(files, v), target_files = _runtime_target_entry_files(files, v), o = "{", c = "}") for (v, name, _, files) in libs])
 
 def _targets(libs):
   return r"""{o}

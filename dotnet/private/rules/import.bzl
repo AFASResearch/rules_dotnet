@@ -16,8 +16,8 @@ def _import_library_impl(ctx):
         version = ctx.attr.version,
         deps = ctx.attr.deps,
         data = ctx.attr.data,
-        libs = ctx.files.libs if ctx.files.libs else ctx.files.src,
-        refs = ctx.files.refs,
+        libs = ctx.files.src if ctx.files.src else ctx.files.libs,
+        refs = ctx.files.src if ctx.files.src else ctx.files.refs,
         analyzers = ctx.files.analyzers,
     )
 

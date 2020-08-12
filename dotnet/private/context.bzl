@@ -31,7 +31,7 @@ def new_library(
     if not refs:
         if ref_result:
             refs = [ref_result]
-        else:
+        elif refs == None: # only use libs as refs when refs is not specified
             refs = libs
 
     if not all([type(f) == "File" for f in refs]):
