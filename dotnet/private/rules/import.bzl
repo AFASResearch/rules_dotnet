@@ -28,6 +28,9 @@ def _import_library_impl(ctx):
 
     return [
         library,
+        DefaultInfo(
+            runfiles = ctx.runfiles(transitive_files = library.runfiles)
+        )
     ]
 
 def _import_binary_impl(ctx):
@@ -65,7 +68,7 @@ core_import_library = rule(
     _import_library_impl,
     attrs = {
         "deps": attr.label_list(providers = [DotnetLibrary]),
-        "src": attr.label(allow_files = [".dll", ".exe"]),
+        "src": attr.label(allow_single_file = [".dll", ".exe"]),
         "libs": attr.label_list(allow_files = [".dll", ".exe"]),
         "refs": attr.label_list(allow_files = [".dll", ".exe"]),
         "analyzers": attr.label_list(allow_files = [".dll"]),
