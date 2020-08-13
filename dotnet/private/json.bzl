@@ -18,15 +18,22 @@ def _assembly_name(name):
 def _quote(s):
     return "\"" + s + "\""
 
-def write_runtimeconfig(dotnet_ctx, dll_file, launcher_path):
-    runtimeconfig = dotnet_ctx.declare_file(dotnet_ctx, path = _assembly_name(dll_file.basename) + ".runtimeconfig.json", sibling = dll_file)
-    launcher_name = paths.basename(launcher_path)
-    dotnet_ctx.actions.write(runtimeconfig, r"""
+def write_runtimeconfig(ctx, dll_file, launcher_path = None):
+    if type(dll_file) == "File":
+      name = dll_file.basename
+      file = dll_file
+    else:
+      name = dll_file
+      file = None
+
+    runtimeconfig = ctx.actions.declare_file(_assembly_name(name) + ".runtimeconfig.json", sibling = file)
+
+    json = r"""
 {
   "runtimeOptions": {
     "additionalProbingPaths": [
-      "./"""+ launcher_path + r""".runfiles/""" + dotnet_ctx.workspace_name + r"""/",
-      "./"""+ launcher_name + r""".runfiles/""" + dotnet_ctx.workspace_name + r"""/",
+      "./"""+ launcher_path + r""".runfiles/""" + ctx.workspace_name + r"""/",
+      "./"""+ paths.basename(launcher_path) + r""".runfiles/""" + ctx.workspace_name + r"""/",
       "./"
     ],
     "tfm": "netcoreapp3.1",
@@ -36,7 +43,19 @@ def write_runtimeconfig(dotnet_ctx, dll_file, launcher_path):
     }
   }
 } 
-""")
+""" if launcher_path else r"""
+{
+  "runtimeOptions": {
+    "tfm": "netcoreapp3.1",
+    "framework": {
+      "name": "Microsoft.AspNetCore.App",
+      "version": "3.1.0"
+    }
+  }
+} 
+"""
+
+    ctx.actions.write(runtimeconfig, json)
     return runtimeconfig
 
 def _lib_entries(libs):

@@ -40,7 +40,7 @@ call :rlocation "{dotnet_path}" DOTNET_RUNNER
     workspace_name = dotnet.workspace_name))
 
     # DllName.runtimeconfig.json
-    runtimeconfig = write_runtimeconfig(dotnet, library.result, launcher.path)
+    runtimeconfig = write_runtimeconfig(dotnet._ctx, library.result, launcher.path)
     # DllName.deps.json
     depsjson = write_depsjson(dotnet, library)
 
