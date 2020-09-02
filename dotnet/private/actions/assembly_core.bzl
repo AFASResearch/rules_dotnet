@@ -43,6 +43,7 @@ def _make_runner_arglist(dotnet, deps, transitive_analyzers, resources, output, 
     args.add("/langversion:latest")
     args.add("/nologo")
     args.add("/deterministic+")
+    args.add("/define:NETCOREAPP")
 
     if pdb:
         args.add("-pdb:" + pdb.path)
