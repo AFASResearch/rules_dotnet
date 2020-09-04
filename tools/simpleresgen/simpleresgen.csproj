@@ -14,11 +14,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="mono\" />
+    <Folder Include="MSBuild.Shared\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Resources.Writer" Version="4.3.0" />
+    <PackageReference Include="System.Resources.Extensions" Version="4.3.0" />
   </ItemGroup>
 
 </Project>
