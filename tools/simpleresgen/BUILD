@@ -9,5 +9,6 @@ core_binary(
     visibility = ["//visibility:public"],
     deps = [
         "@nuget//microsoft.netcore.app.ref",
+        "@nuget//system.resources.extensions",
     ],
 )
