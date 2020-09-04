@@ -27,7 +27,7 @@ namespace Compiler.Server.Multiplex
             _pathmap = pathmap;
         }
 
-        public async Task<WorkResponse> Work(WorkRequest request, CancellationToken cancellationToken)
+        public async Task<WorkResponse> Work(int requestId, string cscParamsFile, CancellationToken cancellationToken)
         {
             var pipeClient =
                 new NamedPipeClientStream(".", _pipe,
@@ -36,7 +36,6 @@ namespace Compiler.Server.Multiplex
 
             await pipeClient.ConnectAsync(_connectTimeout, cancellationToken).ConfigureAwait(false);
 
-            var cscParamsFile = request.Arguments[0];
             var root = Path.GetDirectoryName(Directory.GetCurrentDirectory());
             var external = Path.Combine(Directory.GetCurrentDirectory(), "external");
             var args = new List<string> { "/noconfig", $"@{Path.GetFullPath(cscParamsFile)}" };
@@ -60,7 +59,7 @@ namespace Compiler.Server.Multiplex
                 return new WorkResponse
                 {
                     ExitCode = 1,
-                    RequestId = request.RequestId,
+                    RequestId = requestId,
                     Output = "Server disconnected"
                 };
             }
@@ -77,7 +76,7 @@ namespace Compiler.Server.Multiplex
                 return new WorkResponse
                 {
                     ExitCode = completedBuildResponse.ReturnCode,
-                    RequestId = request.RequestId,
+                    RequestId = requestId,
                     Output = output
                 };
             }
@@ -85,7 +84,7 @@ namespace Compiler.Server.Multiplex
             return new WorkResponse
             {
                 ExitCode = 1 + (int)buildResponseTask.Result.Type,
-                RequestId = request.RequestId,
+                RequestId = requestId,
                 Output = $"Unknown build response type {buildResponseTask.Result.Type}"
             };
         }

@@ -52,7 +52,7 @@ call :rlocation "{dotnet_path}" DOTNET_RUNNER
     )
 
     return DefaultInfo(
-        files = depset([library.result, launcher, runtimeconfig, depsjson]),
+        files = depset([library.result, launcher, runtimeconfig, depsjson] + library.output_files),
         runfiles = runfiles,
         executable = launcher,
     )
@@ -80,7 +80,7 @@ def _binary_impl(ctx):
     return [
         executable,
         create_launcher(dotnet, executable),
-    ]
+    ] + executable.output_groups
 
 dotnet_binary = rule(
     _binary_impl,

@@ -44,34 +44,62 @@ namespace Compiler.Server.Multiplex
             {
                 var request = WorkRequest.Parser.ParseDelimitedFrom(Console.OpenStandardInput());
 
-                if(serverProcess.HasExited)
+                switch (request.Arguments[0].ToLower())
                 {
-                    serverProcess = StartServerProcess(dotnet, vbcs, pipe, serverLogFile);
+                    case "targets":
+                        Task.Run(() => CreateTargets(request));
+                        break;
+                    default:
+                        Log($"Received {request.RequestId}");
+                        if (serverProcess.HasExited)
+                        {
+                            serverProcess = StartServerProcess(dotnet, vbcs, pipe, serverLogFile);
+                        }
+                        Task.Run(() => Compile(request));
+                        break;
                 }
-                
-                Log($"Received {request.RequestId}");
-
-                Task.Run(async () =>
-                {
-                    var client = new Client(pipe, tempDir, commitHash, pathmap);
-                    var response = await client.Work(request, cancelSource.Token).ConfigureAwait(false);
-                    
-                    if (response.ExitCode == 0 && request.Arguments.Count >= 3)
-                    {
-                        var cscParamsFile = request.Arguments[0];
-                        var unusedRefsOutput = request.Arguments[1];
-                        var dll = request.Arguments[2];
-                        var unusedReferences = ResolveUnusedReferences(cscParamsFile, dll);
-                        File.WriteAllText(Path.GetFullPath(unusedRefsOutput), string.Join("\n", unusedReferences));
-                    }
-
-                    response.WriteDelimitedTo(Console.OpenStandardOutput());
-                    
-                    Log($"Replied {response.RequestId}");
-                });
             }
 
             Log("Done");
+
+            void CreateTargets(WorkRequest request)
+            {
+                File.WriteAllText(request.Arguments[2], @$"<?xml version=""1.0"" encoding=""utf-8""?>
+<Project>
+  <PropertyGroup>
+    <CscParamContent>
+{File.ReadAllText(request.Arguments[1])}
+    </CscParamContent>
+  </PropertyGroup>
+</Project>
+");
+
+                new WorkResponse
+                {
+                    ExitCode = 0,
+                    RequestId = request.RequestId,
+                    Output = string.Empty
+                }.WriteDelimitedTo(Console.OpenStandardOutput());
+            }
+
+            async Task Compile(WorkRequest request)
+            {
+                var client = new Client(pipe, tempDir, commitHash, pathmap);
+                var response = await client.Work(request.RequestId, request.Arguments[1], cancelSource.Token).ConfigureAwait(false);
+
+                if (response.ExitCode == 0 && request.Arguments.Count >= 4)
+                {
+                    var cscParamsFile = request.Arguments[1];
+                    var unusedRefsOutput = request.Arguments[2];
+                    var dll = request.Arguments[3];
+                    var unusedReferences = ResolveUnusedReferences(cscParamsFile, dll);
+                    File.WriteAllText(Path.GetFullPath(unusedRefsOutput), string.Join("\n", unusedReferences));
+                }
+
+                response.WriteDelimitedTo(Console.OpenStandardOutput());
+
+                Log($"Replied {response.RequestId}");
+            }
         }
 
         private static Process StartServerProcess(string dotnet, string vbcs, string pipe, string logFilePath)

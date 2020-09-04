@@ -56,6 +56,13 @@ def _make_runner_arglist(dotnet, deps, transitive_analyzers, resources, output, 
 
     return args
 
+def _job_args(dotnet, args):
+    job_args = dotnet.actions.args()
+    job_args.use_param_file("@%s", use_always = True)
+    job_args.set_param_file_format("multiline")
+    job_args.add_all(args)
+    return job_args
+    
 def emit_assembly_core(
         dotnet,
         name,
@@ -94,34 +101,39 @@ def emit_assembly_core(
     runner_args.set_param_file_format("multiline")
 
     if server:
-        # Write csc params to file so wa can supply the file to the server
-        paramfilepath = name + ".csc.param"
-        paramfile = dotnet.declare_file(dotnet, path = paramfilepath)
-        dotnet.actions.write(output = paramfile, content = runner_args)
-        
-        # Our compiler server analyzes output dll's to prune the dependency graph
-        unused_refs = dotnet.declare_file(dotnet, path = name + ".unused")
-        outputs.append(unused_refs)
-
-        # arguments for a single job
-        job_args = dotnet.actions.args()
-        job_args.add(paramfile.path)
-        job_args.use_param_file("@%s", use_always = True)
-        job_args.set_param_file_format("multiline")
-        job_args.add(unused_refs.path)
-        # dll to analyze unused_refs
-        job_args.add(result.path)
-
         # startup arguments of the server
         server_args = [dotnet.runner.path, dotnet.mcs.path]
         if dotnet.execroot_pathmap:
             server_args.append(dotnet.execroot_pathmap)
 
+        # Write csc params to file so wa can supply the file to the server
+        paramfile = dotnet.declare_file(dotnet, path = name + ".csc.param")
+        dotnet.actions.write(output = paramfile, content = runner_args)
+
+        # Write a .Targets file for IDE integration to be picked up by MSBuild
+        # It's probably better to implement this in a Bazel aspect in the future
+        # https://docs.bazel.build/versions/master/skylark/aspects.html
+        targetsfile = dotnet.declare_file(dotnet, path = name + ".csc.Targets")
+        dotnet.actions.run(
+            inputs = [paramfile],
+            outputs = [targetsfile],
+            executable = server,
+            arguments = server_args + [_job_args(dotnet, ["targets", paramfile, targetsfile])],
+            mnemonic = "CoreCompile",
+            execution_requirements = { "supports-multiplex-workers": "1" },
+            tools = [server],
+            progress_message = (
+                "Creating csc.Targets " + dotnet.label.package + ":" + dotnet.label.name
+            )
+        )
+        
+        # Our compiler server analyzes output dll's to prune the dependency graph
+        unused_refs = dotnet.declare_file(dotnet, path = name + ".unused")
         dotnet.actions.run(
             inputs = depset(direct = [paramfile] + resource_files, transitive = [all_srcs, transitive_refs]),
-            outputs = outputs,
+            outputs = outputs + [unused_refs],
             executable = server,
-            arguments = server_args + [job_args],
+            arguments = server_args + [_job_args(dotnet, ["compile", paramfile.path, unused_refs.path, result.path])],
             mnemonic = "CoreCompile",
             execution_requirements = { "supports-multiplex-workers": "1" },
             tools = [server],
@@ -131,6 +143,7 @@ def emit_assembly_core(
             unused_inputs_list = unused_refs
         )
     else:
+        targetsfile = None
         dotnet.actions.run(
             inputs = depset(direct = resource_files, transitive = [all_srcs, transitive_refs]),
             outputs = outputs,
@@ -150,4 +163,6 @@ def emit_assembly_core(
         ref_result = ref_result,
         pdb = pdb,
         data = data,
+        output_files = [targetsfile] if targetsfile else [],
+        output_groups = [OutputGroupInfo(targets = [targetsfile])] if targetsfile else [],
     )

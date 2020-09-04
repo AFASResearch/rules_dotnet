@@ -39,10 +39,10 @@ def _library_impl(ctx):
     return [
         library,
         DefaultInfo(
-            files = depset([library.result]),
+            files = depset([library.result] + library.output_files),
             runfiles = runfiles,
         ),
-    ]
+    ] + library.output_groups
 
 dotnet_library = rule(
     _library_impl,
