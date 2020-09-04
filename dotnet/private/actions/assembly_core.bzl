@@ -130,7 +130,8 @@ def emit_assembly_core(
         # Our compiler server analyzes output dll's to prune the dependency graph
         unused_refs = dotnet.declare_file(dotnet, path = name + ".unused")
         dotnet.actions.run(
-            inputs = depset(direct = [paramfile] + resource_files, transitive = [all_srcs, transitive_refs]),
+            # ensure targetsfile is build when this action runs by making it an input
+            inputs = depset(direct = [paramfile, targetsfile] + resource_files, transitive = [all_srcs, transitive_refs]),
             outputs = outputs + [unused_refs],
             executable = server,
             arguments = server_args + [_job_args(dotnet, ["compile", paramfile.path, unused_refs.path, result.path])],
@@ -163,6 +164,5 @@ def emit_assembly_core(
         ref_result = ref_result,
         pdb = pdb,
         data = data,
-        output_files = [targetsfile] if targetsfile else [],
         output_groups = [OutputGroupInfo(targets = [targetsfile])] if targetsfile else [],
     )

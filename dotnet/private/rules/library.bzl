@@ -39,7 +39,7 @@ def _library_impl(ctx):
     return [
         library,
         DefaultInfo(
-            files = depset([library.result] + library.output_files),
+            files = depset([library.result]),
             runfiles = runfiles,
         ),
     ] + library.output_groups

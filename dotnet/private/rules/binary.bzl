@@ -52,7 +52,7 @@ call :rlocation "{dotnet_path}" DOTNET_RUNNER
     )
 
     return DefaultInfo(
-        files = depset([library.result, launcher, runtimeconfig, depsjson] + library.output_files),
+        files = depset([library.result, launcher, runtimeconfig, depsjson]),
         runfiles = runfiles,
         executable = launcher,
     )
