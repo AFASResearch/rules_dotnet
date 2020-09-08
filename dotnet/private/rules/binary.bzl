@@ -26,18 +26,30 @@ def create_launcher(dotnet, library):
         content = r"""@echo off
 SETLOCAL ENABLEEXTENSIONS
 SETLOCAL ENABLEDELAYEDEXPANSION
+
+REM direct invocations
+if "%RUNFILES_DIR%"=="" (
+    SET RUNFILES_DIR=%~df0.runfiles
+)
+
+REM invocations from inside a .runfiles folder
+if not exist "%RUNFILES_DIR%" (
+    set RUNFILES_DIR=%~DP0{depth}
+)
+
 set RUNFILES_MANIFEST_ONLY=1
 REM we do not trust an already set MANIFEST_FILE because this may be a calling program
 set RUNFILES_MANIFEST_FILE=""
 {rlocation_function}
 call :rlocation "{dotnet_path}" DOTNET_RUNNER
 
-"%DOTNET_RUNNER%" "\\?\%~dp0{dll}" %*
+"%DOTNET_RUNNER%" --additionalprobingpath "%RUNFILES_DIR%\{workspace_name}" "\\?\%~dp0{dll}" %*
 """.format(
     dotnet_path = to_manifest_path(dotnet, dotnet.runner),
     rlocation_function = BATCH_RLOCATION_FUNCTION,
     dll = library.result.basename,
-    workspace_name = dotnet.workspace_name))
+    workspace_name = dotnet.workspace_name,
+    depth = "/".join([".." for _ in to_manifest_path(dotnet, launcher).split("/")[1:]])))
 
     # DllName.runtimeconfig.json
     runtimeconfig = write_runtimeconfig(dotnet._ctx, library.result, launcher.path)
