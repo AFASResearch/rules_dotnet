@@ -19,6 +19,7 @@ def _make_runner_arglist(dotnet, deps, transitive_analyzers, resources, output, 
     args.add(ref_output, format = "/refout:%s")
     if pdb:
         args.add(pdb, format = "/pdb:%s")
+        args.add("/debug:full")
 
     args.add("/fullpaths")
     args.add("/nostdlib")
@@ -30,11 +31,9 @@ def _make_runner_arglist(dotnet, deps, transitive_analyzers, resources, output, 
     args.add_all(dotnet.no_warns, format_each = "/nowarn:%s")
 
     if debug:
-        args.add("/debug:full")
         args.add("/optimize-")
         args.add("/define:TRACE;DEBUG")
     else:
-        args.add("/debug-")
         args.add("/optimize+")
         args.add("/define:TRACE;RELEASE")
     
@@ -85,8 +84,8 @@ def emit_assembly_core(
     filename = out if out else name
     result = dotnet.declare_file(dotnet, path = subdir + filename)
     ref_result = dotnet.declare_file(dotnet, path = subdir + paths.split_extension(filename)[0] + ".ref.dll")
-    pdb = dotnet.declare_file(dotnet, path = subdir + paths.split_extension(filename)[0] + ".pdb") if dotnet.debug else None
-    outputs = [result, ref_result] + ([pdb] if pdb else [])
+    pdb = dotnet.declare_file(dotnet, path = subdir + paths.split_extension(filename)[0] + ".pdb") # should we make this configurable in release?
+    outputs = [result, ref_result, pdb]
 
     transitive_analyzers = depset(transitive = [d[DotnetLibrary].transitive_analyzers for d in deps])
     transitive_refs = depset(transitive = [d[DotnetLibrary].transitive_refs for d in deps])
