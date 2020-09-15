@@ -84,8 +84,10 @@ def emit_assembly_core(
     filename = out if out else name
     result = dotnet.declare_file(dotnet, path = subdir + filename)
     ref_result = dotnet.declare_file(dotnet, path = subdir + paths.split_extension(filename)[0] + ".ref.dll")
-    pdb = dotnet.declare_file(dotnet, path = subdir + paths.split_extension(filename)[0] + ".pdb") # should we make this configurable in release?
-    outputs = [result, ref_result, pdb]
+    # when server is specified pdb's have their pathmap substituted
+    # otherwise only create a pdb in dbg mode
+    pdb = dotnet.declare_file(dotnet, path = subdir + paths.split_extension(filename)[0] + ".pdb") if server or dotnet.debug else None # should we make this configurable in release?
+    outputs = [result, ref_result] + ([pdb] if pdb else [])
 
     transitive_analyzers = depset(transitive = [d[DotnetLibrary].transitive_analyzers for d in deps])
     transitive_refs = depset(transitive = [d[DotnetLibrary].transitive_refs for d in deps])
@@ -119,7 +121,7 @@ def emit_assembly_core(
             executable = server,
             arguments = server_args + [_job_args(dotnet, ["targets", paramfile, targetsfile])],
             mnemonic = "CoreCompile",
-            execution_requirements = { "supports-multiplex-workers": "1" },
+            execution_requirements = { "supports-multiplex-workers": "1", "no-cache": "1" },
             tools = [server],
             progress_message = (
                 "Creating csc.Targets " + dotnet.label.package + ":" + dotnet.label.name
