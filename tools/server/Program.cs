@@ -64,13 +64,37 @@ namespace Compiler.Server.Multiplex
 
             void CreateTargets(WorkRequest request)
             {
+                var items = File.ReadAllLines(request.Arguments[1])
+                    .Where(l => l.StartsWith("/reference:"))
+                    .Select(l =>
+                    {
+                        var refPath = l.Substring(11).Replace('/', '\\');
+                        var dllPath = refPath.Replace(".ref.dll", ".dll");
+                        
+                        string projectRef = string.Empty;
+                        string sourceTarget = "ResolveAssemblyReference";
+                        if(refPath.EndsWith(".ref.dll", StringComparison.OrdinalIgnoreCase)) // recognize bazel build project
+                        {
+                            sourceTarget = "ProjectReference";
+                            projectRef = Path.GetRelativePath(Path.GetDirectoryName(request.Arguments[1]), Path.ChangeExtension(dllPath, ".csproj"));
+                        }
+                        
+                        return $@"<CSCReference Include=""$(ExecRoot)\{dllPath}"">
+    <ReferenceAssembly>$(ExecRoot)\{refPath}</ReferenceAssembly>
+    <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    <ReferenceSourceTarget>{sourceTarget}</ReferenceSourceTarget>
+    <ProjectReferenceOriginalItemSpec>{projectRef}</ProjectReferenceOriginalItemSpec>
+    <OriginalProjectReferenceItemSpec>{projectRef}</OriginalProjectReferenceItemSpec>
+</CSCReference>
+";
+                    })
+                    .ToArray();
+
                 File.WriteAllText(request.Arguments[2], @$"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project>
-  <PropertyGroup>
-    <CscParamContent>
-{File.ReadAllText(request.Arguments[1])}
-    </CscParamContent>
-  </PropertyGroup>
+  <ItemGroup>
+{string.Join('\n', items)}
+  </ItemGroup>
 </Project>
 ");
 
