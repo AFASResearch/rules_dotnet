@@ -110,29 +110,11 @@ def emit_assembly_core(
         # Write csc params to file so wa can supply the file to the server
         paramfile = dotnet.declare_file(dotnet, path = name + ".csc.param")
         dotnet.actions.write(output = paramfile, content = runner_args)
-
-        # Write a .Targets file for IDE integration to be picked up by MSBuild
-        # It's probably better to implement this in a Bazel aspect in the future
-        # https://docs.bazel.build/versions/master/skylark/aspects.html
-        targetsfile = dotnet.declare_file(dotnet, path = name + ".csc.Targets")
-        dotnet.actions.run(
-            inputs = [paramfile],
-            outputs = [targetsfile],
-            executable = server,
-            arguments = server_args + [_job_args(dotnet, ["targets", paramfile, targetsfile])],
-            mnemonic = "CoreCompile",
-            execution_requirements = { "supports-multiplex-workers": "1", "no-cache": "1" },
-            tools = [server],
-            progress_message = (
-                "Creating csc.Targets " + dotnet.label.package + ":" + dotnet.label.name
-            )
-        )
         
         # Our compiler server analyzes output dll's to prune the dependency graph
         unused_refs = dotnet.declare_file(dotnet, path = name + ".unused")
         dotnet.actions.run(
-            # ensure targetsfile is build when this action runs by making it an input
-            inputs = depset(direct = [paramfile, targetsfile] + resource_files, transitive = [all_srcs, transitive_refs]),
+            inputs = depset(direct = [paramfile] + resource_files, transitive = [all_srcs, transitive_refs]),
             outputs = outputs + [unused_refs],
             executable = server,
             arguments = server_args + [_job_args(dotnet, ["compile", paramfile.path, unused_refs.path, result.path])],
@@ -145,7 +127,6 @@ def emit_assembly_core(
             unused_inputs_list = unused_refs
         )
     else:
-        targetsfile = None
         dotnet.actions.run(
             inputs = depset(direct = resource_files, transitive = [all_srcs, transitive_refs]),
             outputs = outputs,
@@ -165,5 +146,5 @@ def emit_assembly_core(
         ref_result = ref_result,
         pdb = pdb,
         data = data,
-        output_groups = [OutputGroupInfo(targets = [targetsfile])] if targetsfile else [],
+        output_groups = [],
     )

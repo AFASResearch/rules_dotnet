@@ -64,11 +64,11 @@ namespace Compiler.Server.Multiplex
 
             void CreateTargets(WorkRequest request)
             {
-                var items = File.ReadAllLines(request.Arguments[1])
-                    .Where(l => l.StartsWith("/reference:"))
+                var items = request.Arguments
+                    .Skip(2)
                     .Select(l =>
                     {
-                        var refPath = l.Substring(11).Replace('/', '\\');
+                        var refPath = l.Replace('/', '\\');
                         var dllPath = refPath.Replace(".ref.dll", ".dll");
                         
                         string projectRef = string.Empty;
@@ -90,7 +90,7 @@ namespace Compiler.Server.Multiplex
                     })
                     .ToArray();
 
-                File.WriteAllText(request.Arguments[2], @$"<?xml version=""1.0"" encoding=""utf-8""?>
+                File.WriteAllText(request.Arguments[1], @$"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project>
   <ItemGroup>
 {string.Join('\n', items)}
