@@ -7,7 +7,7 @@ load(
     "DotnetResourceList",
 )
 load(
-    "@io_bazel_rules_dotnet//dotnet/private:skylib/lib/paths.bzl",
+    "@bazel_skylib//lib:paths.bzl",
     "paths",
 )
 
@@ -39,69 +39,6 @@ def _resx_impl(ctx):
         ),
     ]
 
-def _resx_multi_impl(ctx):
-    dotnet = dotnet_context(ctx)
-    name = ctx.label.name
-
-    if ctx.attr.identifierBase != "" and ctx.attr.fixedIdentifierBase != "":
-        fail("Both identifierBase and fixedIdentifierBase cannot be specified")
-
-    result = []
-    for d in ctx.attr.srcs:
-        for k in d.files.to_list():
-            base = paths.dirname(ctx.build_file_path)
-            if ctx.attr.identifierBase != "":
-                identifier = k.path.replace(base, ctx.attr.identifierBase, 1)
-                identifier = identifier.replace("/", ".")
-                identifier = paths.replace_extension(identifier, ".resources")
-            else:
-                identifier = ctx.attr.fixedIdentifierBase + "." + paths.basename(k.path)
-                identifier = paths.replace_extension(identifier, ".resources")
-
-            resource = dotnet.resx(
-                dotnet = dotnet,
-                name = identifier,
-                src = k,
-                identifier = identifier,
-                out = identifier,
-                customresgen = ctx.attr.simpleresgen,
-            )
-            result.append(resource)
-
-    return [
-        DotnetResourceList(result = result),
-        DefaultInfo(
-            files = depset([d.result for d in result]),
-        ),
-    ]
-
-net_resx = rule(
-    _resx_impl,
-    attrs = {
-        # source files for this target.
-        "src": attr.label(allow_files = [".resx"], mandatory = True),
-        "identifier": attr.string(),
-        "out": attr.string(),
-        "dotnet_context_data": attr.label(default = Label("@io_bazel_rules_dotnet//:net_context_data")),
-        "simpleresgen": attr.label(),
-    },
-    toolchains = ["@io_bazel_rules_dotnet//dotnet:toolchain_net"],
-    executable = False,
-)
-dotnet_resx = rule(
-    _resx_impl,
-    attrs = {
-        # source files for this target.
-        "src": attr.label(allow_files = [".resx"], mandatory = True),
-        "identifier": attr.string(),
-        "out": attr.string(),
-        "dotnet_context_data": attr.label(default = Label("@io_bazel_rules_dotnet//:dotnet_context_data")),
-        "simpleresgen": attr.label(),
-    },
-    toolchains = ["@io_bazel_rules_dotnet//dotnet:toolchain"],
-    executable = False,
-)
-
 core_resx = rule(
     _resx_impl,
     attrs = {
@@ -113,19 +50,5 @@ core_resx = rule(
         "simpleresgen": attr.label(default = Label("@io_bazel_rules_dotnet//tools/simpleresgen:simpleresgen")),
     },
     toolchains = ["@io_bazel_rules_dotnet//dotnet:toolchain_core"],
-    executable = False,
-)
-
-net_resx_multi = rule(
-    _resx_multi_impl,
-    attrs = {
-        # source files for this target.
-        "srcs": attr.label_list(allow_files = True, mandatory = True),
-        "identifierBase": attr.string(),
-        "fixedIdentifierBase": attr.string(),
-        "dotnet_context_data": attr.label(default = Label("@io_bazel_rules_dotnet//:net_context_data")),
-        "simpleresgen": attr.label(),
-    },
-    toolchains = ["@io_bazel_rules_dotnet//dotnet:toolchain_net"],
     executable = False,
 )

@@ -1,2 +1,0 @@
-Hello, World!
-This text file was included as an embedded resource

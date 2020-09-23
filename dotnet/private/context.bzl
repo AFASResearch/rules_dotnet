@@ -79,24 +79,6 @@ def dotnet_context(ctx, attr = None):
     context_data = attr.dotnet_context_data
     toolchain = ctx.toolchains[context_data._toolchain_type]
 
-    ext = ""
-    if toolchain.default_dotnetos == "windows":
-        ext = ".exe"
-
-    # Handle empty toolchain for .NET on linux and osx
-    if toolchain.get_dotnet_runner == None:
-        runner = None
-        mcs = None
-        stdlib = None
-        resgen = None
-        tlbimp = None
-    else:
-        runner = toolchain.get_dotnet_runner(context_data, ext)
-        mcs = toolchain.get_dotnet_mcs(context_data)
-        stdlib = toolchain.get_dotnet_stdlib(context_data)
-        resgen = toolchain.get_dotnet_resgen(context_data)
-        tlbimp = toolchain.get_dotnet_tlbimp(context_data)
-
     return DotnetContext(
         # Fields
         label = ctx.label,
@@ -104,14 +86,8 @@ def dotnet_context(ctx, attr = None):
         actions = ctx.actions,
         assembly = toolchain.actions.assembly,
         resx = toolchain.actions.resx,
-        com_ref = toolchain.actions.com_ref,
-        stdlib_byname = toolchain.actions.stdlib_byname,
-        exe_extension = ext,
-        runner = runner,
-        mcs = mcs,
-        stdlib = stdlib,
-        resgen = resgen,
-        tlbimp = tlbimp,
+        runner = toolchain.dotnet_runner,
+        mcs = toolchain.csc_binary,
         declare_file = _declare_file,
         new_library = new_library,
         new_resource = _new_resource,
@@ -151,52 +127,6 @@ def _dotnet_context_data(ctx):
         _framework = ctx.attr.framework,
         _execroot_pathmap = ctx.attr.execroot_pathmap,
     )
-
-dotnet_context_data = rule(
-    _dotnet_context_data,
-    attrs = {
-        "mcs_bin": attr.label(
-            allow_files = True,
-            default = "@dotnet_sdk//:mcs_bin",
-        ),
-        "mono_bin": attr.label(
-            allow_files = True,
-            default = "@dotnet_sdk//:mono_bin",
-        ),
-        "lib": attr.label(
-            allow_files = True,
-            default = "@dotnet_sdk//:lib",
-        ),
-        "tools": attr.label(
-            allow_files = True,
-            default = "@dotnet_sdk//:lib",
-        ),
-        "shared": attr.label(
-            allow_files = True,
-            default = "@dotnet_sdk//:lib",
-        ),
-        "host": attr.label(
-            allow_files = True,
-            default = "@dotnet_sdk//:lib",
-        ),
-        "libVersion": attr.string(
-            default = "4.5",
-        ),
-        "framework": attr.string(
-            default = "",
-        ),
-        "_toolchain_type": attr.string(
-            default = "@io_bazel_rules_dotnet//dotnet:toolchain",
-        ),
-        "extra_srcs": attr.label_list(
-            allow_files = True,
-            default = [],
-        ),
-        "no_warns": attr.string_list(
-            default = [],
-        ),
-    },
-)
 
 core_context_data = rule(
     _dotnet_context_data,
@@ -259,51 +189,5 @@ core_context_data = rule(
         "execroot_pathmap": attr.string(
             default = "",
         ),        
-    },
-)
-
-net_context_data = rule(
-    _dotnet_context_data,
-    attrs = {
-        "mcs_bin": attr.label(
-            allow_files = True,
-            default = "@net_sdk//:mcs_bin",
-        ),
-        "mono_bin": attr.label(
-            allow_files = True,
-            default = "@net_sdk//:mono_bin",
-        ),
-        "lib": attr.label(
-            allow_files = True,
-            default = "@net_sdk//:lib",
-        ),
-        "tools": attr.label(
-            allow_files = True,
-            default = "@net_sdk//:tools",
-        ),
-        "shared": attr.label(
-            allow_files = True,
-            default = "@net_sdk//:lib",
-        ),
-        "host": attr.label(
-            allow_files = True,
-            default = "@net_sdk//:mcs_bin",
-        ),
-        "libVersion": attr.string(
-            mandatory = True,
-        ),
-        "framework": attr.string(
-            default = "",
-        ),
-        "_toolchain_type": attr.string(
-            default = "@io_bazel_rules_dotnet//dotnet:toolchain_net",
-        ),
-        "extra_srcs": attr.label_list(
-            allow_files = True,
-            default = ["@net_sdk//:targetframework"],
-        ),
-        "no_warns": attr.string_list(
-            default = [],
-        ),
     },
 )

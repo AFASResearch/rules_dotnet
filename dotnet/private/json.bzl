@@ -8,7 +8,7 @@ load(
     "DotnetLibrary",
 )
 load(
-    "@io_bazel_rules_dotnet//dotnet/private:skylib/lib/paths.bzl",
+    "@bazel_skylib//lib:paths.bzl",
     "paths",
 )
 

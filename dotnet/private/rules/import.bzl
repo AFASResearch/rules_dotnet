@@ -42,28 +42,6 @@ def _import_binary_impl(ctx):
         create_launcher(dotnet, library)
     ]
 
-dotnet_import_library = rule(
-    _import_library_impl,
-    attrs = {
-        "deps": attr.label_list(providers = [DotnetLibrary]),
-        "src": attr.label(allow_files = [".dll", ".exe"], mandatory = True),
-        "data": attr.label_list(allow_files = True),
-        "version": attr.string(),
-    },
-    executable = False,
-)
-
-dotnet_import_binary = rule(
-    _import_library_impl,
-    attrs = {
-        "deps": attr.label_list(providers = [DotnetLibrary]),
-        "src": attr.label(allow_files = [".dll", ".exe"], mandatory = True),
-        "data": attr.label_list(allow_files = True),
-        "version": attr.string(),
-    },
-    executable = False,
-)
-
 core_import_library = rule(
     _import_library_impl,
     attrs = {
@@ -91,26 +69,4 @@ core_import_binary = rule(
     },
     toolchains = ["@io_bazel_rules_dotnet//dotnet:toolchain_core"],
     executable = True,
-)
-
-net_import_library = rule(
-    _import_library_impl,
-    attrs = {
-        "deps": attr.label_list(providers = [DotnetLibrary]),
-        "src": attr.label(allow_files = [".dll", ".exe"], mandatory = True),
-        "data": attr.label_list(allow_files = True),
-        "version": attr.string(),
-    },
-    executable = False,
-)
-
-net_import_binary = rule(
-    _import_library_impl,
-    attrs = {
-        "deps": attr.label_list(providers = [DotnetLibrary]),
-        "src": attr.label(allow_files = [".dll", ".exe"], mandatory = True),
-        "data": attr.label_list(allow_files = True),
-        "version": attr.string(),
-    },
-    executable = False,
 )
