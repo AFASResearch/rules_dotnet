@@ -107,6 +107,9 @@ def emit_assembly_core(
         if dotnet.execroot_pathmap:
             server_args.append(dotnet.execroot_pathmap)
 
+        # this ensures the action depends on runfiles tree creation even when --output_groups=-_hidden_top_level_INTERNAL_
+        _, input_manifests = dotnet._ctx.resolve_tools(tools = [dotnet._ctx.attr.server])
+
         # Write csc params to file so wa can supply the file to the server
         paramfile = dotnet.declare_file(dotnet, path = name + ".csc.param")
         dotnet.actions.write(output = paramfile, content = runner_args)
@@ -117,6 +120,7 @@ def emit_assembly_core(
         targetsfile = dotnet.declare_file(dotnet, path = name + ".csc.Targets")
         dotnet.actions.run(
             inputs = [paramfile],
+            input_manifests = input_manifests,
             outputs = [targetsfile],
             executable = server,
             arguments = server_args + [_job_args(dotnet, ["targets", paramfile, targetsfile])],
@@ -133,6 +137,7 @@ def emit_assembly_core(
         dotnet.actions.run(
             # ensure targetsfile is build when this action runs by making it an input
             inputs = depset(direct = [paramfile, targetsfile] + resource_files, transitive = [all_srcs, transitive_refs]),
+            input_manifests = input_manifests,
             outputs = outputs + [unused_refs],
             executable = server,
             arguments = server_args + [_job_args(dotnet, ["compile", paramfile.path, unused_refs.path, result.path])],
