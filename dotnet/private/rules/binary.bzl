@@ -94,84 +94,28 @@ def _binary_impl(ctx):
         create_launcher(dotnet, executable),
     ] + executable.output_groups
 
-dotnet_binary = rule(
-    _binary_impl,
-    attrs = {
-        "deps": attr.label_list(providers = [DotnetLibrary]),
-        "resources": attr.label_list(providers = [DotnetResourceList]),
-        "srcs": attr.label_list(allow_files = [".cs"]),
-        "out": attr.string(),
-        "defines": attr.string_list(),
-        "unsafe": attr.bool(default = False),
-        "data": attr.label_list(allow_files = True),
-        "keyfile": attr.label(allow_files = True),
-        "dotnet_context_data": attr.label(default = Label("@io_bazel_rules_dotnet//:dotnet_context_data")),
-        "native_deps": attr.label(default = Label("@dotnet_sdk//:native_deps")),
-    },
-    toolchains = ["@io_bazel_rules_dotnet//dotnet:toolchain"],
-    executable = True,
-)
+def _rule(server_default):
+    return rule(
+        _binary_impl,
+        attrs = {
+            "deps": attr.label_list(providers = [DotnetLibrary]),
+            "resources": attr.label_list(providers = [DotnetResourceList]),
+            "srcs": attr.label_list(allow_files = [".cs"]),
+            "out": attr.string(),
+            "defines": attr.string_list(),
+            "unsafe": attr.bool(default = False),
+            "data": attr.label_list(allow_files = True),
+            "keyfile": attr.label(allow_files = True),
+            "dotnet_context_data": attr.label(default = Label("@io_bazel_rules_dotnet//:core_context_data")),
+            "server": attr.label(
+                default = server_default,
+                executable = True,
+                cfg = "host",
+            ),
+        },
+        toolchains = ["@io_bazel_rules_dotnet//dotnet:toolchain_core"],
+        executable = True,
+    )
 
-core_binary = rule(
-    _binary_impl,
-    attrs = {
-        "deps": attr.label_list(providers = [DotnetLibrary]),
-        "resources": attr.label_list(providers = [DotnetResourceList]),
-        "srcs": attr.label_list(allow_files = [".cs"]),
-        "out": attr.string(),
-        "defines": attr.string_list(),
-        "unsafe": attr.bool(default = False),
-        "data": attr.label_list(allow_files = True),
-        "keyfile": attr.label(allow_files = True),
-        "dotnet_context_data": attr.label(default = Label("@io_bazel_rules_dotnet//:core_context_data")),
-        "server": attr.label(
-            default = Label("@io_bazel_rules_dotnet//tools/server:Compiler.Server.Multiplex"),
-            executable = True,
-            cfg = "host",
-        ),
-        "native_deps": attr.label(default = Label("@core_sdk//:native_deps")),
-    },
-    toolchains = ["@io_bazel_rules_dotnet//dotnet:toolchain_core"],
-    executable = True,
-)
-
-core_binary_no_server = rule(
-    _binary_impl,
-    attrs = {
-        "deps": attr.label_list(providers = [DotnetLibrary]),
-        "resources": attr.label_list(providers = [DotnetResourceList]),
-        "srcs": attr.label_list(allow_files = [".cs"]),
-        "out": attr.string(),
-        "defines": attr.string_list(),
-        "unsafe": attr.bool(default = False),
-        "data": attr.label_list(allow_files = True),
-        "keyfile": attr.label(allow_files = True),
-        "dotnet_context_data": attr.label(default = Label("@io_bazel_rules_dotnet//:core_context_data")),
-        "server": attr.label(
-            default = None,
-            executable = True,
-            cfg = "host",
-        ),
-        "native_deps": attr.label(default = Label("@core_sdk//:native_deps")),
-    },
-    toolchains = ["@io_bazel_rules_dotnet//dotnet:toolchain_core"],
-    executable = True,
-)
-
-net_binary = rule(
-    _binary_impl,
-    attrs = {
-        "deps": attr.label_list(providers = [DotnetLibrary]),
-        "resources": attr.label_list(providers = [DotnetResourceList]),
-        "srcs": attr.label_list(allow_files = [".cs"]),
-        "out": attr.string(),
-        "defines": attr.string_list(),
-        "unsafe": attr.bool(default = False),
-        "data": attr.label_list(allow_files = True),
-        "keyfile": attr.label(allow_files = True),
-        "dotnet_context_data": attr.label(default = Label("@io_bazel_rules_dotnet//:net_context_data")),
-        "native_deps": attr.label(default = Label("@net_sdk//:native_deps")),
-    },
-    toolchains = ["@io_bazel_rules_dotnet//dotnet:toolchain_net"],
-    executable = True,
-)
+core_binary = _rule(Label("@io_bazel_rules_dotnet//tools/server:Compiler.Server.Multiplex"))
+core_binary_no_server = _rule(None)

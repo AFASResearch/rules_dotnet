@@ -23,8 +23,6 @@ load(
 load(
     "@io_bazel_rules_dotnet//dotnet/private:rules/binary.bzl",
     _core_binary = "core_binary",
-    _dotnet_binary = "dotnet_binary",
-    _net_binary = "net_binary",
 )
 load(
     "@io_bazel_rules_dotnet//dotnet/private:rules/library.bzl",
@@ -98,8 +96,6 @@ core_register_sdk = _core_register_sdk
 dotnet_toolchain = _dotnet_toolchain
 dotnet_repositories = _dotnet_repositories
 core_binary = _core_binary
-dotnet_binary = _dotnet_binary
-net_binary = _net_binary
 core_library = _core_library
 dotnet_library = _dotnet_library
 net_library = _net_library
