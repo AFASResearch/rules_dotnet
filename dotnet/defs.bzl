@@ -23,12 +23,7 @@ load(
 load(
     "@io_bazel_rules_dotnet//dotnet/private:rules/binary.bzl",
     _core_binary = "core_binary",
-)
-load(
-    "@io_bazel_rules_dotnet//dotnet/private:rules/library.bzl",
     _core_library = "core_library",
-    _dotnet_library = "dotnet_library",
-    _net_library = "net_library",
 )
 load(
     "@io_bazel_rules_dotnet//dotnet/private:rules/resx.bzl",
@@ -97,8 +92,6 @@ dotnet_toolchain = _dotnet_toolchain
 dotnet_repositories = _dotnet_repositories
 core_binary = _core_binary
 core_library = _core_library
-dotnet_library = _dotnet_library
-net_library = _net_library
 core_resx = _core_resx
 dotnet_resx = _dotnet_resx
 net_resx = _net_resx

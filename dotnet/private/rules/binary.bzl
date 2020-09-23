@@ -69,34 +69,35 @@ call :rlocation "{dotnet_path}" DOTNET_RUNNER
         executable = launcher,
     )
 
-def _binary_impl(ctx):
-    """_binary_impl emits actions for compiling executable assembly."""
+def _rule_impl(ctx):
+    """_rule_impl emits actions for compiling executable assembly."""
     dotnet = dotnet_context(ctx)
     name = ctx.label.name
 
-    executable = dotnet.assembly(
+    assembly = dotnet.assembly(
         dotnet,
         name = name,
+        target_type = ctx.attr._target_type,
         srcs = ctx.attr.srcs,
         deps = ctx.attr.deps,
         resources = ctx.attr.resources,
         out = ctx.attr.out,
         defines = ctx.attr.defines,
-        unsafe = ctx.attr.unsafe,
         data = ctx.attr.data,
-        executable = True,
+        unsafe = ctx.attr.unsafe,
         keyfile = ctx.attr.keyfile,
         server = ctx.executable.server,
     )
 
-    return [
-        executable,
-        create_launcher(dotnet, executable),
-    ] + executable.output_groups
+    result = [assembly] + assembly.output_groups
+    if ctx.attr._target_type == "exe":
+        result.append(create_launcher(dotnet, assembly))
 
-def _rule(server_default):
+    return result
+
+def _rule(target_type, server_default = Label("@io_bazel_rules_dotnet//tools/server:Compiler.Server.Multiplex")):
     return rule(
-        _binary_impl,
+        _rule_impl,
         attrs = {
             "deps": attr.label_list(providers = [DotnetLibrary]),
             "resources": attr.label_list(providers = [DotnetResourceList]),
@@ -112,10 +113,12 @@ def _rule(server_default):
                 executable = True,
                 cfg = "host",
             ),
+            "_target_type": attr.string(default = target_type)
         },
         toolchains = ["@io_bazel_rules_dotnet//dotnet:toolchain_core"],
-        executable = True,
+        executable = target_type == "exe",
     )
 
-core_binary = _rule(Label("@io_bazel_rules_dotnet//tools/server:Compiler.Server.Multiplex"))
-core_binary_no_server = _rule(None)
+core_library = _rule("library")
+core_binary = _rule("exe")
+core_binary_no_server = _rule("exe", None)

@@ -11,10 +11,10 @@ load(
 def _map_resource(d):
     return d.result.path + "," + d.identifier
 
-def _make_runner_arglist(dotnet, deps, transitive_analyzers, resources, output, ref_output, debug, pdb, executable, defines, unsafe, keyfile):
+def _make_runner_arglist(dotnet, deps, transitive_analyzers, resources, output, ref_output, debug, pdb, target_type, defines, unsafe, keyfile):
     args = dotnet.actions.args()
 
-    args.add("exe" if executable else "library", format = "/target:%s")
+    args.add(target_type, format = "/target:%s")
     args.add(output, format = "/out:%s")
     args.add(ref_output, format = "/refout:%s")
     if pdb:
@@ -65,11 +65,11 @@ def _job_args(dotnet, args):
 def emit_assembly_core(
         dotnet,
         name,
+        target_type, # library or exe
         srcs,
         deps = None,
         out = None,
         resources = None,
-        executable = True,
         defines = None,
         unsafe = False,
         data = None,
@@ -93,7 +93,7 @@ def emit_assembly_core(
     transitive_refs = depset(transitive = [d[DotnetLibrary].transitive_refs for d in deps])
     resource_items = [r for rs in resources for r in rs[DotnetResourceList].result]
     resource_files = [r.result for r in resource_items]
-    runner_args = _make_runner_arglist(dotnet, transitive_refs, transitive_analyzers, resource_items, result, ref_result, dotnet.debug, pdb, executable, defines, unsafe, keyfile)
+    runner_args = _make_runner_arglist(dotnet, transitive_refs, transitive_analyzers, resource_items, result, ref_result, dotnet.debug, pdb, target_type, defines, unsafe, keyfile)
 
     all_srcs = depset(transitive = [s.files for s in srcs + dotnet.extra_srcs])
     runner_args.add_all(all_srcs)
