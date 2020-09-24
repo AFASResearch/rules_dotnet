@@ -17,14 +17,6 @@ def _dependencies():
             )
 
 def _core_download_sdk_impl(ctx):
-    ctx.download_and_extract(
-        url = ctx.attr.urls,
-        sha256 = ctx.attr.sha256,
-        output = ctx.path("."),
-    )
-
-    ctx.symlink("sdk/" + ctx.attr.version, "sdk/current")
-
     ctx.template(
         "BUILD.bazel",
         Label("@io_bazel_rules_dotnet//dotnet/private:BUILD.sdk.bazel"),
@@ -33,6 +25,14 @@ def _core_download_sdk_impl(ctx):
             "{name}": ctx.attr.name,
         }
     )
+
+    ctx.download_and_extract(
+        url = ctx.attr.urls,
+        sha256 = ctx.attr.sha256,
+        output = ctx.path("."),
+    )
+
+    ctx.symlink("sdk/" + ctx.attr.version, "sdk/current")
 
 core_download_sdk = repository_rule(
     _core_download_sdk_impl,
