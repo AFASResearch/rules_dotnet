@@ -1,5 +1,5 @@
 load("@io_bazel_rules_dotnet//dotnet/private:toolchain.bzl", "core_toolchain")
-
+exports_files(["dotnet.exe", "sdk/current/AppHostTemplate/apphost.exe"])
 package(default_visibility = ["//visibility:public"])
 
 core_toolchain(
