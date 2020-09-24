@@ -45,12 +45,12 @@ core_download_sdk = repository_rule(
 
 # Currently very simplified
 def core_register_sdk(
-    version = "3.1.100",
     name = "core_sdk",
+    version = "3.1.402",
     urls = [
-        "https://download.visualstudio.microsoft.com/download/pr/28a2c4ff-6154-473b-bd51-c62c76171551/ea47eab2219f323596c039b3b679c3d6/dotnet-sdk-3.1.100-win-x64.zip",
+        "https://download.visualstudio.microsoft.com/download/pr/b30e445b-5cee-4783-ae93-45d855e8d033/f26dc774a0a9feb7436dff939ec25a7c/dotnet-sdk-3.1.402-win-x64.zip",
     ],
-    sha256 = "abcd034b230365d9454459e271e118a851969d82516b1529ee0bfea07f7aae52",
+    sha256 = "ccab4a29c6b5feca71129a051ebf73ca2059f43dfa2cf47981193fabc1cd9033",
 ):
     _dependencies()
 
