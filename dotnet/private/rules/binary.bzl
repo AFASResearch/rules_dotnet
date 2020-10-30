@@ -92,6 +92,11 @@ def _rule_impl(ctx):
     result = [assembly] + assembly.output_groups
     if ctx.attr._target_type == "exe":
         result.append(create_launcher(dotnet, assembly))
+    else:
+        # always output a DefaultInfo with a file so directly building this target will trigger actions
+        result.append(DefaultInfo(
+            files = depset([assembly.result]),
+        ))
 
     return result
 
