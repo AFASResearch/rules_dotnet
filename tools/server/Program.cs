@@ -64,11 +64,33 @@ namespace Compiler.Server.Multiplex
 
             void CreateTargets(WorkRequest request)
             {
-                var items = File.ReadAllLines(request.Arguments[1])
-                    .Where(l => l.StartsWith("/reference:"))
-                    .Select(l =>
+                string ScopePath(string path)
+                {
+                    return $"$(ExecRoot)\\{path}";
+                }
+
+                var outFolder = Path.GetDirectoryName(request.Arguments[2]).Replace('/', '\\') + "\\";
+
+                var sb = new StringBuilder();
+
+                foreach(var line in File.ReadAllLines(request.Arguments[1]))
+                {
+                    // compile files
+                    if(!line.StartsWith('/'))
                     {
-                        var refPath = l.Substring(11).Replace('/', '\\');
+                        var compileFile = line.Trim('"').Replace('/', '\\');
+                        // bazel generated compile files
+                        if(compileFile.StartsWith(outFolder))
+                        {
+                            sb.Append($@"<BazelOutCompile Include=""{ScopePath(compileFile)}"">
+    <Link>{compileFile.Substring(outFolder.Length)}</Link>
+</BazelOutCompile>
+");
+                        }
+                    }
+                    else if(line.StartsWith("/reference:"))
+                    {
+                        var refPath = line.Substring(11).Replace('/', '\\');
                         var dllPath = refPath.Replace(".ref.dll", ".dll");
                         
                         string projectRef = string.Empty;
@@ -79,21 +101,42 @@ namespace Compiler.Server.Multiplex
                             projectRef = Path.GetRelativePath(Path.GetDirectoryName(request.Arguments[1]), Path.ChangeExtension(dllPath, ".csproj"));
                         }
                         
-                        return $@"<CSCReference Include=""$(ExecRoot)\{dllPath}"">
-    <ReferenceAssembly>$(ExecRoot)\{refPath}</ReferenceAssembly>
+                        sb.Append($@"<CSCReference Include=""{ScopePath(dllPath)}"">
+    <ReferenceAssembly>{ScopePath(refPath)}</ReferenceAssembly>
     <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     <ReferenceSourceTarget>{sourceTarget}</ReferenceSourceTarget>
     <ProjectReferenceOriginalItemSpec>{projectRef}</ProjectReferenceOriginalItemSpec>
     <OriginalProjectReferenceItemSpec>{projectRef}</OriginalProjectReferenceItemSpec>
 </CSCReference>
-";
-                    })
-                    .ToArray();
+");
+                    }
+                }
+
+                // obj/....csproj.bazel.props file
+                string FromBin(string path)
+                {
+                    const string bin = "/bin/";
+                    return path.Substring(path.IndexOf(bin) + bin.Length);
+                }
+
+                var path = FromBin(request.Arguments[2]);
+                path = Path.Combine(Path.GetDirectoryName(path), "obj", Path.GetFileName(path));
+                new DirectoryInfo(Path.GetDirectoryName(path)).Create();
+                var importPath = Path.GetFullPath(request.Arguments[2]);
+                File.WriteAllText(path, $@"
+<Project>
+  <PropertyGroup>
+    <ExecRoot>{Directory.GetCurrentDirectory()}</ExecRoot>
+    <BazelPropsUpdatedAt>{DateTime.UtcNow:o}</BazelPropsUpdatedAt>
+  </PropertyGroup>
+  <Import Project=""{importPath}"" />
+</Project>
+");
 
                 File.WriteAllText(request.Arguments[2], @$"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project>
   <ItemGroup>
-{string.Join('\n', items)}
+{sb}
   </ItemGroup>
 </Project>
 ");
