@@ -96,7 +96,8 @@ def emit_assembly_core(
     runner_args = _make_runner_arglist(dotnet, transitive_refs, transitive_analyzers, resource_items, result, ref_result, dotnet.debug, pdb, target_type, defines, unsafe, keyfile)
 
     all_srcs = depset(transitive = [s.files for s in srcs + dotnet.extra_srcs])
-    runner_args.add_all(all_srcs)
+    # files could contain spaces. therefore quote
+    runner_args.add_all(all_srcs, format_each = '"%s"')
 
     runner_args.use_param_file("@%s", use_always = True)
     runner_args.set_param_file_format("multiline")
