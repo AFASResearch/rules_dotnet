@@ -128,8 +128,9 @@ namespace Compiler.Server.Multiplex
   <PropertyGroup>
     <ExecRoot>{Directory.GetCurrentDirectory()}</ExecRoot>
     <BazelPropsUpdatedAt>{DateTime.UtcNow:o}</BazelPropsUpdatedAt>
+    <BazelPropsPath>{importPath}</BazelPropsPath>
   </PropertyGroup>
-  <Import Project=""{importPath}"" />
+  <Import Project=""$(BazelPropsPath)"" Condition=""exists('$(BazelPropsPath)')"" />
 </Project>
 ");
 
