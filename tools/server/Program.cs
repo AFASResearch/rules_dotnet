@@ -122,19 +122,22 @@ namespace Compiler.Server.Multiplex
                 var path = FromBin(request.Arguments[2]);
                 path = Path.Combine(Path.GetDirectoryName(path), "obj", Path.GetFileName(path));
                 new DirectoryInfo(Path.GetDirectoryName(path)).Create();
-                var importPath = Path.GetFullPath(request.Arguments[2]);
-                File.WriteAllText(path, $@"
+                var persistedProps = Path.GetFullPath(Path.ChangeExtension(request.Arguments[2], ".persist.props"));
+                File.WriteAllText(path, $@"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project>
   <PropertyGroup>
     <ExecRoot>{Directory.GetCurrentDirectory()}</ExecRoot>
     <BazelPropsUpdatedAt>{DateTime.UtcNow:o}</BazelPropsUpdatedAt>
-    <BazelPropsPath>{importPath}</BazelPropsPath>
+    <BazelPropsPath>{persistedProps}</BazelPropsPath>
   </PropertyGroup>
   <Import Project=""$(BazelPropsPath)"" Condition=""exists('$(BazelPropsPath)')"" />
 </Project>
 ");
 
-                File.WriteAllText(request.Arguments[2], @$"<?xml version=""1.0"" encoding=""utf-8""?>
+                // Deleted by bazel. We do not use it but bazel requires it to be written
+                File.WriteAllText(request.Arguments[2], string.Empty);
+                // Write this file outside of bazels knowledge so it wont be temporarily deleted
+                File.WriteAllText(persistedProps, @$"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project>
   <ItemGroup>
 {sb}
