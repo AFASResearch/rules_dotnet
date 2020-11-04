@@ -64,8 +64,15 @@ namespace Compiler.Server.Multiplex
 
             void CreateTargets(WorkRequest request)
             {
+                var symlinkResolver = new SymlinkResolver();
+                
                 string ScopePath(string path)
                 {
+                    if(symlinkResolver.TryResolveExternalSymlinkToAbsolutePath(path, out var absolutePath))
+                    {
+                        return absolutePath;
+                    }
+                    
                     return $"$(ExecRoot)\\{path}";
                 }
 
