@@ -145,7 +145,8 @@ def emit_assembly_core(
             arguments = server_args + [_job_args(dotnet, ["compile", paramfile.path, unused_refs.path, result.path])],
             mnemonic = "CoreCompile",
             execution_requirements = { "supports-multiplex-workers": "1" },
-            tools = [server],
+            # WARNING: this breaks caching because absolute paths are embedded in the pdb
+            # tools = [server],
             progress_message = (
                 "Compiling " + dotnet.label.package + ":" + dotnet.label.name
             ),
