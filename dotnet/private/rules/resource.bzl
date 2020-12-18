@@ -42,9 +42,7 @@ def _resource_multi_impl(ctx):
     for d in ctx.attr.srcs:
         for k in d.files.to_list():
             if ctx.attr.identifierBase != "":
-                base = paths.dirname(ctx.build_file_path)
-                identifier = k.path.replace(base, ctx.attr.identifierBase, 1)
-                identifier = identifier.replace("/", ".")
+                identifier = ctx.attr.identifierBase + "." + k.owner.name.replace("/", ".")
             else:
                 identifier = ctx.attr.fixedIdentifierBase + "." + paths.basename(k.path)
 
