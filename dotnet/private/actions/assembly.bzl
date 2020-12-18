@@ -75,7 +75,8 @@ def emit_assembly_core(
         data = None,
         keyfile = None,
         subdir = "./",
-        server = None):
+        server = None,
+        args = []):
     """See dotnet/toolchains.rst#binary for full documentation."""
 
     if name == "" and out == None:
@@ -94,6 +95,7 @@ def emit_assembly_core(
     resource_items = [r for rs in resources for r in rs[DotnetResourceList].result]
     resource_files = [r.result for r in resource_items]
     runner_args = _make_runner_arglist(dotnet, transitive_refs, transitive_analyzers, resource_items, result, ref_result, dotnet.debug, pdb, target_type, defines, unsafe, keyfile)
+    runner_args.add_all(args)
 
     all_srcs = depset(transitive = [s.files for s in srcs + dotnet.extra_srcs])
     # files could contain spaces. therefore quote

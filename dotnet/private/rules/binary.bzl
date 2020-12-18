@@ -87,6 +87,7 @@ def _rule_impl(ctx):
         unsafe = ctx.attr.unsafe,
         keyfile = ctx.attr.keyfile,
         server = ctx.executable.server,
+        args = ["/nullable"] if ctx.attr.nullable else []
     )
 
     result = [assembly] + assembly.output_groups
@@ -110,6 +111,7 @@ def _rule(target_type, server_default = Label("@io_bazel_rules_dotnet//tools/ser
             "out": attr.string(),
             "defines": attr.string_list(),
             "unsafe": attr.bool(default = False),
+            "nullable": attr.bool(default = False),
             "data": attr.label_list(allow_files = True),
             "keyfile": attr.label(allow_files = True),
             "dotnet_context_data": attr.label(default = Label("@io_bazel_rules_dotnet//:core_context_data")),
