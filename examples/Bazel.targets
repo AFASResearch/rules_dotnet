@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" InitialTargets="InitBazelFile">
+  <PropertyGroup>
+    <Workspace>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'WORKSPACE'))</Workspace>
+    <WorkspaceFolder>$([System.IO.Path]::GetFileName('$(Workspace)'))</WorkspaceFolder>
+    <ExecRoot Condition="'$(ExecRoot)'==''">$(Workspace)\bazel-$(WorkspaceFolder)</ExecRoot>
+    <WorkspaceProjectName>platform</WorkspaceProjectName>
+    <ToWorkspace>$([MSBuild]::MakeRelative($(MSBuildProjectDirectory), '$(Workspace)\'))</ToWorkspace>
+    <FromWorkspace>$([MSBuild]::MakeRelative('$(Workspace)\', $(MSBuildProjectDirectory)))</FromWorkspace>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <BuildProjectReferences>false</BuildProjectReferences>
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+    <RunAnalyzers Condition="'$(Configuration)'!='Release'">false</RunAnalyzers>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    
+    <!-- We disable this as a property as well to ensure ReSharper does not include std libs in a clean environment -->
+    <NoStdLib>true</NoStdLib>
+    <NoCompilerStandardLib>true</NoCompilerStandardLib>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+
+    <BazelCompilationMode Condition="'$(Configuration)'=='Release'">opt</BazelCompilationMode>
+    <BazelCompilationMode Condition="'$(Configuration)'!='Release'">dbg</BazelCompilationMode>
+    <BazelBin>$(ExecRoot)\bazel-out\x64_windows-$(BazelCompilationMode)\bin\</BazelBin>
+
+    <!-- Required for testing & running in Rider & ReSharper -->
+    <OutDir>$(BazelBin)$(FromWorkspace)\</OutDir>
+
+    <TargetDir>$(BazelBin)$(FromWorkspace)\</TargetDir>
+    <TargetFileName>$(ProjectName).dll</TargetFileName>
+    <!-- This is required the exactly match the references passed to design time CSC for VS based intellisense between projects -->
+    <TargetPath>$(TargetDir)$(ProjectName).dll</TargetPath>
+
+    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+    <TargetRefPath>$(TargetDir)$(ProjectName).ref.dll</TargetRefPath>
+  </PropertyGroup>
+
+  <!-- Empty target -->
+  <Target Name="Restore">
+  </Target>
+  <Target Name="ResolveProjectReferences">
+  </Target>
+  <Target Name="PrepareForBuild">
+  </Target>
+  <Target Name="Clean">
+  </Target>
+
+  <PropertyGroup>
+    <BuildDependsOn>
+      PreBuildEvent;
+      Compile;
+      GetTargetPath;
+      PostBuildEvent
+    </BuildDependsOn>
+
+    <BazelPropsFile>$(MSBuildProjectExtensionsPath)\$(ProjectName).csproj.bazel.props</BazelPropsFile>
+
+    <!-- Fallbacks -->
+    <CompilerResponseFileTargets>$(BazelBin)$(FromWorkspace)\$(ProjectName).csc.Targets</CompilerResponseFileTargets>
+    <CompilerResponseFileTargets Condition="!exists('$(CompilerResponseFileTargets)')">$(BazelBin)$(FromWorkspace)\$(ProjectName).csproj.bazel.props</CompilerResponseFileTargets>
+
+    <!-- For BazelBuild plugin -->
+    <UseBazelBuild>true</UseBazelBuild>
+  </PropertyGroup>
+
+  <Target Name="InitBazelFile">
+    <ItemGroup>
+      <BazelPropsFileLine Include="line1"><Text>&lt;Project /&gt;</Text></BazelPropsFileLine>
+    </ItemGroup>
+    <WriteLinesToFile File="$(BazelPropsFile)" Lines="@(BazelPropsFileLine->'%(Text)')" Condition="!exists('$(BazelPropsFile)')" />
+  </Target>
+
+  <Import Project="$(CompilerResponseFileTargets)" Condition="'$(BazelPropsUpdatedAt)'=='' and exists('$(CompilerResponseFileTargets)')" />
+  <Import Project="DefaultRefs.props" />
+
+  <Target Name="ResolveAssemblyReferences" Returns="@(ReferencePath)">
+    <ItemGroup>
+      <ReferencePath Include="@(CSCReference->Distinct())" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="ResolvePackageDependencies" AfterTargets="RunResolvePackageDependencies" Returns="@(PackageDependencies)">
+      <ItemGroup>
+        <!-- TODO also include transitive dependencies again & set paths -->
+        <PackageDependencies Include="@(PackageReference)">
+          <ParentPackage />
+          <ParentTarget>$(TargetFrameworkMoniker)</ParentTarget>
+        </PackageDependencies>
+        
+        <PackageDefinitions Include="@(PackageReference)">
+          <Path>%(PackageReference.Identity)</Path>
+          <Name>%(PackageReference.Identity)</Name>
+          <Type>package</Type>
+        </PackageDefinitions>
+
+        <_PackageDependenciesDesignTime Include="@(PackageReference)">
+          <Name>%(PackageReference.Identity)</Name>
+          <IsImplicitlyDefined>false</IsImplicitlyDefined>
+          <Resolved>true</Resolved>
+        </_PackageDependenciesDesignTime>
+      </ItemGroup>
+  </Target>
+
+  <!--Referenced projects in THIS solution are still build manually-->
+  <Target Name="Build"
+      DependsOnTargets="$(BuildDependsOn)">
+
+        <!-- <Message Text="$(CompilerResponseFile)" Importance="High" /> -->
+  </Target>
+
+  <!-- Rider calls CoreCompile directly -->
+  <Target Name="CoreCompile" />
+  <Target Name="Compile" DependsOnTargets="ResolveAssemblyReferences">
+    <Exec Condition="'$(DesignTimeBuild)' != 'true'"
+      Command="bazel build -c $(BazelCompilationMode) $(ProjectName)" WorkingDirectory="$(ProjectDir)" />
+
+    <Csc Condition="'$(DesignTimeBuild)' == 'true'"
+        ProvideCommandLineArgs="$(ProvideCommandLineArgs)" 
+        OutputAssembly="$(TargetPath)"
+        OutputRefAssembly="$(TargetRefPath)"
+        
+        AnalyzerConfigFiles="$(Workspace)/.editorconfig"
+
+        NoConfig="true"
+        NoStandardLib="$(NoCompilerStandardLib)"
+        NoLogo="true"
+        Deterministic="true"
+        References="@(ReferencePath)"
+        Sources="@(Compile)"
+        
+        DisabledWarnings="$(NoWarn)"
+        
+        SkipCompilerExecution="$(SkipCompilerExecution)">
+      <Output TaskParameter="CommandLineArgs" ItemName="CscCommandLineArgs" />
+    </Csc>
+  </Target>
+  
+  <!-- Running under VS -->
+  <PropertyGroup>
+    <RunCommand>dotnet</RunCommand>
+    <RunArguments>$(Workspace)\bazel-bin\$(FromWorkspace)\$(ProjectName).dll $(RunArguments)</RunArguments>
+    <RunWorkingDirectory>$(Workspace)\bazel-bin\$(FromWorkspace)\launcher.bat.runfiles\$(WorkspaceProjectName)</RunWorkingDirectory>
+  </PropertyGroup>
+</Project>

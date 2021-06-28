@@ -10,7 +10,7 @@ def _dependencies():
             ],
         },
     }.items():
-        if not name in native.existing_rules():
+        # if not name in native.existing_rules():
             http_archive(
                 name = name,
                 **config

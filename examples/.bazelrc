@@ -1,0 +1,5 @@
+build --override_repository io_bazel_rules_dotnet=C:/Anta/rules_dotnet
+
+build --enable_runfiles
+build --nolegacy_external_runfiles
+build -c dbg

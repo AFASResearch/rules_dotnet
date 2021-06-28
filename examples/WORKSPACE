@@ -1,0 +1,56 @@
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+http_archive(
+     name = "bazel_dotnet",
+     urls = ["https://github.com/AFASResearch/bazel-dotnet/releases/download/v0.2.25/v0.2.25.zip"],
+     sha256 = "d4738166ec0c7df917f1e8022cf4a55673ab4a3953482d836f812e098c983642",
+     build_file_content = r"""
+exports_files(["Afas.BazelDotnet.exe", "Afas.BazelDotnet.dll"])
+"""
+)
+
+##########
+# DOTNET #
+##########
+
+git_repository(
+     name = "io_bazel_rules_dotnet",
+     remote = "https://github.com/AFASResearch/rules_dotnet",
+     commit = "897adadefcc58d9981b64c6bc73b67a965d6be14"
+)
+
+load("@io_bazel_rules_dotnet//dotnet:sdk.bzl", "core_register_sdk")
+core_register_sdk(
+    name = "core_sdk",
+    version = "5.0.100",
+    urls = [
+        "https://download.visualstudio.microsoft.com/download/pr/7b78bdaa-d0ac-41c4-9fdc-5820d7dc79b6/cea499dd314ba6394ccea51a2a2dcda9/dotnet-sdk-5.0.100-win-x64.zip",
+    ],
+    sha256 = "296c89fbfdfedb652e314342e0de069ff392db1a4b0367a2daa9554cf50c1dec")
+
+############
+# PROJECTS #
+############
+
+# We want this to be evaluated ASAP
+load("@io_bazel_rules_dotnet//dotnet:projects_repo.bzl", "projects_repo", "new_projects_repo")
+
+# A fake repository rule that runs the csproj -> BUILD file generator in given directories
+projects_repo(
+     name = "projects"
+)
+
+# this ensures @projects is always re-loaded
+load("@projects//:fix.bzl", "fix")
+fix()
+
+# Initializes nuget dependencies in a repository rule by symlinking ~/.nuget/packages
+load("@io_bazel_rules_dotnet//dotnet:nuget_repo.bzl", "nuget_repo")
+nuget_repo(
+     name = "nuget",
+     nuget_config = "//:nuget.config",
+     packages_props = [
+          "//:Packages.Props"
+     ]
+)

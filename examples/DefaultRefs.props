@@ -1,0 +1,1070 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <!-- This is a workaround for Rider / ReSharper issues. 
+        On some occasions when bazel fails to build and these references
+        are not resolved Rider will choose default framework references. 
+        From this it only partially recovers and remains in a broken mismatching state. -->
+    <PropertyGroup>
+        <NugetPackages>$(USERPROFILE)\.nuget\packages</NugetPackages>
+        <NetcoreAppRef>$(NugetPackages)\microsoft.netcore.app.ref\3.1.0\ref\netcoreapp3.1</NetcoreAppRef>
+    </PropertyGroup>
+    <ItemGroup Condition="exists('$(NetcoreAppRef)')">
+        <CSCReference Include="$(NetcoreAppRef)\Microsoft.CSharp.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\Microsoft.CSharp.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\Microsoft.VisualBasic.Core.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\Microsoft.VisualBasic.Core.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\Microsoft.VisualBasic.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\Microsoft.VisualBasic.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\Microsoft.Win32.Primitives.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\Microsoft.Win32.Primitives.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.AppContext.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.AppContext.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Buffers.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Buffers.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Collections.Concurrent.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Collections.Concurrent.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Collections.Immutable.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Collections.Immutable.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Collections.NonGeneric.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Collections.NonGeneric.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Collections.Specialized.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Collections.Specialized.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Collections.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Collections.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.ComponentModel.Annotations.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.ComponentModel.Annotations.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.ComponentModel.DataAnnotations.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.ComponentModel.DataAnnotations.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.ComponentModel.EventBasedAsync.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.ComponentModel.EventBasedAsync.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.ComponentModel.Primitives.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.ComponentModel.Primitives.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.ComponentModel.TypeConverter.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.ComponentModel.TypeConverter.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.ComponentModel.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.ComponentModel.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Configuration.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Configuration.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Console.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Console.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Core.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Core.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Data.Common.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Data.Common.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Data.DataSetExtensions.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Data.DataSetExtensions.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Data.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Data.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Diagnostics.Contracts.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Diagnostics.Contracts.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Diagnostics.Debug.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Diagnostics.Debug.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Diagnostics.DiagnosticSource.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Diagnostics.DiagnosticSource.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Diagnostics.FileVersionInfo.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Diagnostics.FileVersionInfo.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Diagnostics.Process.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Diagnostics.Process.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Diagnostics.StackTrace.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Diagnostics.StackTrace.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Diagnostics.TextWriterTraceListener.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Diagnostics.TextWriterTraceListener.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Diagnostics.Tools.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Diagnostics.Tools.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Diagnostics.TraceSource.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Diagnostics.TraceSource.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Diagnostics.Tracing.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Diagnostics.Tracing.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Drawing.Primitives.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Drawing.Primitives.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Drawing.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Drawing.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Dynamic.Runtime.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Dynamic.Runtime.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Globalization.Calendars.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Globalization.Calendars.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Globalization.Extensions.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Globalization.Extensions.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Globalization.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Globalization.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.IO.Compression.Brotli.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.IO.Compression.Brotli.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.IO.Compression.FileSystem.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.IO.Compression.FileSystem.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.IO.Compression.ZipFile.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.IO.Compression.ZipFile.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.IO.Compression.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.IO.Compression.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.IO.FileSystem.DriveInfo.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.IO.FileSystem.DriveInfo.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.IO.FileSystem.Primitives.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.IO.FileSystem.Primitives.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.IO.FileSystem.Watcher.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.IO.FileSystem.Watcher.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.IO.FileSystem.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.IO.FileSystem.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.IO.IsolatedStorage.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.IO.IsolatedStorage.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.IO.MemoryMappedFiles.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.IO.MemoryMappedFiles.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.IO.Pipes.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.IO.Pipes.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.IO.UnmanagedMemoryStream.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.IO.UnmanagedMemoryStream.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.IO.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.IO.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Linq.Expressions.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Linq.Expressions.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Linq.Parallel.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Linq.Parallel.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Linq.Queryable.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Linq.Queryable.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Linq.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Linq.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Memory.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Memory.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Net.Http.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Net.Http.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Net.HttpListener.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Net.HttpListener.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Net.Mail.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Net.Mail.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Net.NameResolution.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Net.NameResolution.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Net.NetworkInformation.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Net.NetworkInformation.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Net.Ping.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Net.Ping.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Net.Primitives.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Net.Primitives.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Net.Requests.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Net.Requests.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Net.Security.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Net.Security.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Net.ServicePoint.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Net.ServicePoint.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Net.Sockets.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Net.Sockets.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Net.WebClient.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Net.WebClient.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Net.WebHeaderCollection.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Net.WebHeaderCollection.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Net.WebProxy.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Net.WebProxy.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Net.WebSockets.Client.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Net.WebSockets.Client.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Net.WebSockets.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Net.WebSockets.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Net.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Net.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Numerics.Vectors.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Numerics.Vectors.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Numerics.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Numerics.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.ObjectModel.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.ObjectModel.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Reflection.DispatchProxy.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Reflection.DispatchProxy.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Reflection.Emit.ILGeneration.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Reflection.Emit.ILGeneration.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Reflection.Emit.Lightweight.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Reflection.Emit.Lightweight.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Reflection.Emit.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Reflection.Emit.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Reflection.Extensions.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Reflection.Extensions.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Reflection.Metadata.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Reflection.Metadata.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Reflection.Primitives.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Reflection.Primitives.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Reflection.TypeExtensions.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Reflection.TypeExtensions.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Reflection.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Reflection.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Resources.Reader.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Resources.Reader.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Resources.ResourceManager.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Resources.ResourceManager.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Resources.Writer.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Resources.Writer.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Runtime.CompilerServices.Unsafe.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Runtime.CompilerServices.Unsafe.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Runtime.CompilerServices.VisualC.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Runtime.CompilerServices.VisualC.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Runtime.Extensions.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Runtime.Extensions.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Runtime.Handles.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Runtime.Handles.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Runtime.InteropServices.RuntimeInformation.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Runtime.InteropServices.RuntimeInformation.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Runtime.InteropServices.WindowsRuntime.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Runtime.InteropServices.WindowsRuntime.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Runtime.InteropServices.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Runtime.InteropServices.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Runtime.Intrinsics.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Runtime.Intrinsics.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Runtime.Loader.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Runtime.Loader.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Runtime.Numerics.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Runtime.Numerics.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Runtime.Serialization.Formatters.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Runtime.Serialization.Formatters.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Runtime.Serialization.Json.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Runtime.Serialization.Json.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Runtime.Serialization.Primitives.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Runtime.Serialization.Primitives.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Runtime.Serialization.Xml.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Runtime.Serialization.Xml.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Runtime.Serialization.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Runtime.Serialization.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Runtime.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Runtime.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Security.Claims.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Security.Claims.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Security.Cryptography.Algorithms.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Security.Cryptography.Algorithms.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Security.Cryptography.Csp.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Security.Cryptography.Csp.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Security.Cryptography.Encoding.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Security.Cryptography.Encoding.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Security.Cryptography.Primitives.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Security.Cryptography.Primitives.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Security.Cryptography.X509Certificates.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Security.Cryptography.X509Certificates.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Security.Principal.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Security.Principal.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Security.SecureString.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Security.SecureString.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Security.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Security.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.ServiceModel.Web.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.ServiceModel.Web.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.ServiceProcess.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.ServiceProcess.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Text.Encoding.CodePages.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Text.Encoding.CodePages.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Text.Encoding.Extensions.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Text.Encoding.Extensions.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Text.Encoding.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Text.Encoding.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Text.Encodings.Web.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Text.Encodings.Web.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Text.Json.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Text.Json.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Text.RegularExpressions.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Text.RegularExpressions.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Threading.Channels.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Threading.Channels.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Threading.Overlapped.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Threading.Overlapped.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Threading.Tasks.Dataflow.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Threading.Tasks.Dataflow.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Threading.Tasks.Extensions.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Threading.Tasks.Extensions.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Threading.Tasks.Parallel.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Threading.Tasks.Parallel.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Threading.Tasks.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Threading.Tasks.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Threading.Thread.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Threading.Thread.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Threading.ThreadPool.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Threading.ThreadPool.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Threading.Timer.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Threading.Timer.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Threading.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Threading.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Transactions.Local.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Transactions.Local.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Transactions.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Transactions.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.ValueTuple.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.ValueTuple.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Web.HttpUtility.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Web.HttpUtility.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Web.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Web.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Windows.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Windows.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Xml.Linq.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Xml.Linq.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Xml.ReaderWriter.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Xml.ReaderWriter.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Xml.Serialization.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Xml.Serialization.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Xml.XDocument.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Xml.XDocument.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Xml.XPath.XDocument.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Xml.XPath.XDocument.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Xml.XPath.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Xml.XPath.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Xml.XmlDocument.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Xml.XmlDocument.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Xml.XmlSerializer.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Xml.XmlSerializer.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.Xml.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.Xml.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\System.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\System.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\WindowsBase.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\WindowsBase.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\mscorlib.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\mscorlib.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+        <CSCReference Include="$(NetcoreAppRef)\netstandard.dll">
+            <ReferenceAssembly>$(NetcoreAppRef)\netstandard.dll</ReferenceAssembly>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <ReferenceSourceTarget>ResolveAssemblyReference</ReferenceSourceTarget>
+            <ProjectReferenceOriginalItemSpec></ProjectReferenceOriginalItemSpec>
+            <OriginalProjectReferenceItemSpec></OriginalProjectReferenceItemSpec>
+        </CSCReference>
+    </ItemGroup>
+</Project>
