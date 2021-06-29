@@ -120,22 +120,26 @@ namespace Compiler.Server.Multiplex
                 }
 
                 // obj/....csproj.bazel.props file
-                string FromBin(string path)
+                (string, string) SplitBin(string path)
                 {
                     const string bin = "/bin/";
-                    return path.Substring(path.IndexOf(bin) + bin.Length);
+                    return (path.Substring(0, path.IndexOf(bin)), path.Substring(path.IndexOf(bin) + bin.Length));
                 }
 
-                var path = FromBin(request.Arguments[2]);
-                path = Path.Combine(Path.GetDirectoryName(path), "obj", Path.GetFileName(path));
-                new DirectoryInfo(Path.GetDirectoryName(path)).Create();
+                var (to, from) = SplitBin(request.Arguments[2]);
+                var objProps = Path.Combine(Path.GetDirectoryName(from), "obj", Path.GetFileName(from));
+                new DirectoryInfo(Path.GetDirectoryName(objProps)).Create();
                 var persistedProps = Path.GetFullPath(Path.ChangeExtension(request.Arguments[2], ".persist.props"));
-                File.WriteAllText(path, $@"<?xml version=""1.0"" encoding=""utf-8""?>
+                var parameterizedTo = $"{to.Substring(0, to.LastIndexOf('-') + 1)}$(BazelCompilationMode)";
+                var parameterizedPersistedProps = Path.Combine(Directory.GetCurrentDirectory(), parameterizedTo, "bin", Path.ChangeExtension(from, ".persist.props"));
+                File.WriteAllText(objProps, $@"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project>
   <PropertyGroup>
+    <BazelCompilationMode Condition=""'$(Configuration)'=='Release'"">opt</BazelCompilationMode>
+    <BazelCompilationMode Condition=""'$(Configuration)'!='Release'"">dbg</BazelCompilationMode>
     <ExecRoot>{Directory.GetCurrentDirectory()}</ExecRoot>
     <BazelPropsUpdatedAt>{DateTime.UtcNow:o}</BazelPropsUpdatedAt>
-    <BazelPropsPath>{persistedProps}</BazelPropsPath>
+    <BazelPropsPath>{parameterizedPersistedProps}</BazelPropsPath>
   </PropertyGroup>
   <Import Project=""$(BazelPropsPath)"" Condition=""exists('$(BazelPropsPath)')"" />
 </Project>
