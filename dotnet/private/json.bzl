@@ -11,6 +11,11 @@ load(
     "@bazel_skylib//lib:paths.bzl",
     "paths",
 )
+load(
+  "@core_sdk//:version.bzl",
+  "framework_version",
+  "tfm"
+)
 
 def _assembly_name(name):
     return paths.split_extension(name)[0]
@@ -36,20 +41,20 @@ def write_runtimeconfig(ctx, dll_file, launcher_path = None):
       "./"""+ paths.basename(launcher_path) + r""".runfiles/""" + ctx.workspace_name + r"""/",
       "./"
     ],
-    "tfm": "netcoreapp3.1",
+    "tfm": """+ repr(tfm) +r""",
     "framework": {
       "name": "Microsoft.AspNetCore.App",
-      "version": "3.1.0"
+      "version": """+ repr(framework_version) +r"""
     }
   }
 } 
 """ if launcher_path else r"""
 {
   "runtimeOptions": {
-    "tfm": "netcoreapp3.1",
+    "tfm": """+ repr(tfm) +r""",
     "framework": {
       "name": "Microsoft.AspNetCore.App",
-      "version": "3.1.0"
+      "version": """+ repr(framework_version) +r"""
     }
   }
 } 
