@@ -107,7 +107,7 @@ def _targets(libs):
 
 def write_depsjson(dotnet_ctx, library):
     # transitive including self
-    trans = [library] + [l[DotnetLibrary] for l in library.transitive.to_list()]
+    trans = [l[DotnetLibrary] for l in library.transitive.to_list()]
 
     dep_files = [
         (
