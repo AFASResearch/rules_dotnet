@@ -121,13 +121,15 @@ def write_depsjson(dotnet_ctx, library):
     libs = _libs(dep_files)
     targets = _targets(dep_files)
 
+    short_framework_version = ".".join(framework_version.split(".")[:2])
+
     json = r"""
 {
   "runtimeTarget": {
-    "name": ".NETCoreApp,Version=v3.1"
+    "name": ".NETCoreApp,Version=v"""+ short_framework_version +r""""
   },
   "targets": {
-    ".NETCoreApp,Version=v3.1": """ + targets + r"""
+    ".NETCoreApp,Version=v"""+ short_framework_version +r"""": """ + targets + r"""
   },
   "libraries": """ + libs + r"""
 }
