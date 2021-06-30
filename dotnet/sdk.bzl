@@ -16,6 +16,14 @@ def _dependencies():
                 **config
             )
 
+def _json_string_value(json, key):
+    i = json.index(key)
+    j = i + len(key) + 1 # include a "
+    j = json.find(":", j) + 1
+    s = json.find("\"", j) + 1
+    e = json.find("\"", s)
+    return json[s:e]
+
 def _core_download_sdk_impl(ctx):
     ctx.template(
         "BUILD.bazel",
@@ -33,6 +41,16 @@ def _core_download_sdk_impl(ctx):
     )
 
     ctx.symlink("sdk/" + ctx.attr.version, "sdk/current")
+
+    config = ctx.read("sdk/current/dotnet.runtimeconfig.json")
+
+    ctx.file("version.bzl", r"""runtime_version = "{runtime_version}"
+framework_version = "{framework_version}"
+tfm = "{tfm}"
+""".format(
+    runtime_version = ctx.attr.version,
+    framework_version = _json_string_value(config, "version"),
+    tfm = _json_string_value(config, "tfm")))
 
 core_download_sdk = repository_rule(
     _core_download_sdk_impl,

@@ -11,6 +11,11 @@ load(
     "@bazel_skylib//lib:paths.bzl",
     "paths",
 )
+load(
+  "@core_sdk//:version.bzl",
+  "framework_version",
+  "tfm"
+)
 
 def _assembly_name(name):
     return paths.split_extension(name)[0]
@@ -36,20 +41,20 @@ def write_runtimeconfig(ctx, dll_file, launcher_path = None):
       "./"""+ paths.basename(launcher_path) + r""".runfiles/""" + ctx.workspace_name + r"""/",
       "./"
     ],
-    "tfm": "netcoreapp3.1",
+    "tfm": """+ repr(tfm) +r""",
     "framework": {
       "name": "Microsoft.AspNetCore.App",
-      "version": "3.1.0"
+      "version": """+ repr(framework_version) +r"""
     }
   }
 } 
 """ if launcher_path else r"""
 {
   "runtimeOptions": {
-    "tfm": "netcoreapp3.1",
+    "tfm": """+ repr(tfm) +r""",
     "framework": {
       "name": "Microsoft.AspNetCore.App",
-      "version": "3.1.0"
+      "version": """+ repr(framework_version) +r"""
     }
   }
 } 
@@ -102,7 +107,7 @@ def _targets(libs):
 
 def write_depsjson(dotnet_ctx, library):
     # transitive including self
-    trans = [library] + [l[DotnetLibrary] for l in library.transitive.to_list()]
+    trans = [l[DotnetLibrary] for l in library.transitive.to_list()]
 
     dep_files = [
         (
@@ -116,13 +121,15 @@ def write_depsjson(dotnet_ctx, library):
     libs = _libs(dep_files)
     targets = _targets(dep_files)
 
+    short_framework_version = ".".join(framework_version.split(".")[:2])
+
     json = r"""
 {
   "runtimeTarget": {
-    "name": ".NETCoreApp,Version=v3.1"
+    "name": ".NETCoreApp,Version=v"""+ short_framework_version +r""""
   },
   "targets": {
-    ".NETCoreApp,Version=v3.1": """ + targets + r"""
+    ".NETCoreApp,Version=v"""+ short_framework_version +r"""": """ + targets + r"""
   },
   "libraries": """ + libs + r"""
 }
